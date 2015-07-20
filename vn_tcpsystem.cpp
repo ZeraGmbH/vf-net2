@@ -6,7 +6,7 @@
 
 #include <xiqnetpeer.h>
 #include <xiqnetserver.h>
-#include <veincore.pb.h>
+#include <vfcore.pb.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET_TCP, "\e[1;33m<Vein.Network.Tcp>\033[0m")
 Q_LOGGING_CATEGORY(VEIN_NET_TCP_VERBOSE, "\e[0;33m<Vein.Network.Tcp>\033[0m")

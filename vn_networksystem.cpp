@@ -7,7 +7,7 @@
 #include <vcmp_errordata.h>
 #include <vcmp_introspectiondata.h>
 #include <ve_commandevent.h>
-#include <veincore.pb.h>
+#include <vfcore.pb.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET, "\e[1;32m<Vein.Network>\033[0m")
 Q_LOGGING_CATEGORY(VEIN_NET_VERBOSE, "\e[0;32m<Vein.Network>\033[0m")
