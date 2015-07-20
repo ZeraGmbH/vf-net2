@@ -39,10 +39,24 @@ namespace VeinNet
     int getPeerId() const;
 
   private:
+    /**
+     * @brief 'Randomly' assigned static event type (QEvent::Type)
+     */
     static int m_eventType;
 
+    /**
+     * @brief indicates the current status of the network peer
+     */
     const NetworkStatus m_status;
+
+    /**
+     * @brief the socket error as Qt identifier in case of NSE_SOCKET_ERROR status
+     */
     QAbstractSocket::SocketError m_socketError;
+
+    /**
+     * @brief the socket identifier of the network peer
+     */
     int m_peerId = -1;
   };
 

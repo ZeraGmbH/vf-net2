@@ -33,10 +33,6 @@ namespace VeinNet
 
     bool isOfLocalOrigin() const;
 
-    /**
-     * @brief for remote events this is the unique network id
-     * @return
-     */
     int peerId() const;
     void setPeerId(int t_peerId);
 
@@ -50,7 +46,14 @@ namespace VeinNet
 
     QList<int> m_receivers;
 
+    /**
+     * @brief 'Randomly' assigned static event type (QEvent::Type)
+     */
     static int m_eventType;
+
+    /**
+     * @brief for remote events this is the unique network id
+     */
     int m_peerId = -1;
   };
 }

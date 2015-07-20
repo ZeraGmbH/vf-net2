@@ -20,6 +20,9 @@ namespace VeinNet
     explicit NetworkSystem(QObject * t_parent=0);
     virtual ~NetworkSystem();
 
+    /**
+     * @brief describes whether the events are sent over to no one/subscribers/anyone
+     */
     enum OperationMode {
       VNOM_DEBUG =0, /**< do nothing and only print the debug message */
       VNOM_PASS_THROUGH, /**< pass all events to the other site */

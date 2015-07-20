@@ -216,6 +216,10 @@ namespace VeinNet
     }
 
     NetworkSystem::OperationMode m_operationMode=NetworkSystem::VNOM_SUBCRIPTION;
+
+    /**
+     * @brief stores current subscribers
+     */
     SubscriptionStorage<int> m_subscriptions;
 
     NetworkSystem *q_ptr;
@@ -270,7 +274,8 @@ namespace VeinNet
     }
     else if(t_event->type() == CommandEvent::eventType())
     {
-      switch (d->m_operationMode) {
+      switch (d->m_operationMode)
+      {
         case VeinNet::NetworkSystem::VNOM_DEBUG:
         {
           qCDebug(VEIN_NET) << "Debug mode is enabled, dropped event:" << t_event;
