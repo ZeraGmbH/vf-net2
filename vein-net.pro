@@ -13,6 +13,15 @@ VEIN_DEP_PROTOBUF = 1
 VEIN_DEP_TCP = 1
 VEIN_DEP_HELPER = 1
 
+HEADERS +=\
+        veinnet_global.h \
+    vn_tcpsystem.h \
+    vn_networksystem.h \
+    vn_protocolevent.h \
+    vn_protocolwrapper.h \
+    vn_introspectionsystem.h \
+    vn_networkstatusevent.h
+
 exists( ../../project-paths.pri ) {
   include(../../project-paths.pri)
 }
@@ -31,15 +40,6 @@ SOURCES += \
     vn_protocolwrapper.cpp \
     vn_introspectionsystem.cpp \
     vn_networkstatusevent.cpp
-
-HEADERS +=\
-        veinnet_global.h \
-    vn_tcpsystem.h \
-    vn_networksystem.h \
-    vn_protocolevent.h \
-    vn_protocolwrapper.h \
-    vn_introspectionsystem.h \
-    vn_networkstatusevent.h
 
 unix {
     target.path = /usr/lib
