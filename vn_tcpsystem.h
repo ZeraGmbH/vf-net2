@@ -54,16 +54,45 @@ namespace VeinNet
      */
     void startServer(quint16 t_port);
     void connectToServer(QString t_host, quint16 t_port);
+
+    /**
+     * @brief adds the client to the waiting auth list and sends auth message
+     * @param t_networkPeer
+     * @todo implement real authentication
+     */
     void onClientConnected(XiQNetPeer *t_networkPeer);
+
+    /**
+     * @brief adds the server to the waiting auth list
+     * @todo do not rely on QObject::sender()
+     */
     void onConnectionEstablished();
+
+    /**
+     * @brief cleans up the reference to the server peer
+     * @todo do not rely on QObject::sender()
+     */
     void onConnectionClosed();
+
+    /**
+     * @brief Cleans up local references to the client and calls sigClientDisconnected();
+     * @todo do not rely on QObject::sender()
+     */
     void onClientDisconnected();
+
     /**
      * @brief onMessageReceived
      * @param t_protobufMessage
      * @todo add support for multiple commands in one protobuf message
+     * @todo do not rely on QObject::sender()
      */
     void onMessageReceived(google::protobuf::Message *t_protobufMessage);
+
+    /**
+     * @brief sends a NetworkStatusEvent about the socketerror
+     * @param t_socketError
+     * @todo do not rely on QObject::sender()
+     */
     void onSocketError(QAbstractSocket::SocketError t_socketError);
 
     // EventSystem interface

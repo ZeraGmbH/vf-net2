@@ -39,11 +39,14 @@ namespace VeinNet
   private:
     const bool m_localOrigin;
     /**
-     * @brief m_protobuf
+     * @brief stored protobuf data
      * @note will be deleted in event destructor
      */
     protobuf::VeinProtocol *m_protobuf = 0;
 
+    /**
+     * @brief in case of unicast or multicast (in contrast to broadcast) the receivers will be explicitly listed
+     */
     QList<int> m_receivers;
 
     /**
