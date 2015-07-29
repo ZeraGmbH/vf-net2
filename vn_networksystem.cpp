@@ -19,6 +19,8 @@ namespace VeinNet
 {
   class NetworkSystemPrivate
   {
+    Q_DISABLE_COPY(NetworkSystemPrivate)
+
     // stands for QHash<"entity descriptor", QList<"network id"> *>
     template <typename T>
     using SubscriptionStorage = QHash<T, QList<int>>;
@@ -278,7 +280,7 @@ namespace VeinNet
       {
         case VeinNet::NetworkSystem::VNOM_DEBUG:
         {
-          qCDebug(VEIN_NET) << "Debug mode is enabled, dropped event:" << t_event;
+          qCDebug(VEIN_NET_VERBOSE) << "Debug mode is enabled, dropped event:" << t_event;
           t_event->accept();
           retVal = true;
           break;

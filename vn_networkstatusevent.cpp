@@ -5,6 +5,7 @@ namespace VeinNet
   NetworkStatusEvent::NetworkStatusEvent(NetworkStatus t_status, int t_peerId) :
     QEvent(static_cast<QEvent::Type>(getEventType())),
     m_status(t_status),
+    m_socketError(),
     m_peerId(t_peerId)
   {
     this->setAccepted(false);

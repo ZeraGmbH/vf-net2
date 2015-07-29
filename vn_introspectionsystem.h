@@ -17,6 +17,8 @@ namespace VeinNet
   class VEINNETSHARED_EXPORT IntrospectionSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
+    Q_DISABLE_COPY(IntrospectionSystem)
+
   public:
     explicit IntrospectionSystem(QObject *t_parent=0);
 
