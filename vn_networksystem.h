@@ -15,7 +15,6 @@ namespace VeinNet
   class VEINNETSHARED_EXPORT NetworkSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
-    Q_DISABLE_COPY(NetworkSystem)
 
   public:
     explicit NetworkSystem(QObject * t_parent=0);
@@ -41,8 +40,6 @@ namespace VeinNet
 
   private:
     NetworkSystemPrivate *d_ptr = 0;
-
-    Q_DECLARE_PRIVATE(NetworkSystem)
   };
 }
 

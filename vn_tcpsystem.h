@@ -33,7 +33,6 @@ namespace VeinNet
   class VEINNETSHARED_EXPORT TcpSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
-    Q_DISABLE_COPY(TcpSystem)
 
   public:
     explicit TcpSystem(QObject *t_parent = 0);

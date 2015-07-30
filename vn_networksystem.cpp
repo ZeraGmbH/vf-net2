@@ -19,7 +19,6 @@ namespace VeinNet
 {
   class NetworkSystemPrivate
   {
-    Q_DISABLE_COPY(NetworkSystemPrivate)
 
     // stands for QHash<"entity descriptor", QList<"network id"> *>
     template <typename T>
@@ -102,10 +101,9 @@ namespace VeinNet
             }
             if(tmpEvent != 0)
             {
-              Q_Q(NetworkSystem);
               tmpEvent->setPeerId(t_pEvent->peerId());
               qCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
-              emit q->sigSendEvent(tmpEvent);
+              emit q_ptr->sigSendEvent(tmpEvent);
             }
           }
         }
@@ -209,12 +207,11 @@ namespace VeinNet
 
     void sendNetworkEvent(QList<int> t_receivers, protobuf::VeinProtocol *t_data)
     {
-      Q_Q(NetworkSystem);
       ProtocolEvent *protoEvent = new ProtocolEvent(true); //create a new event of local origin
       protoEvent->setProtobuf(t_data);
       protoEvent->setReceivers(t_receivers);
 
-      emit q->sigSendEvent(protoEvent);
+      emit q_ptr->sigSendEvent(protoEvent);
     }
 
     NetworkSystem::OperationMode m_operationMode=NetworkSystem::VNOM_SUBCRIPTION;
@@ -227,7 +224,7 @@ namespace VeinNet
     NetworkSystem *q_ptr;
 
 
-    Q_DECLARE_PUBLIC(NetworkSystem)
+    friend class NetworkSystem;
   };
 
 
@@ -247,21 +244,16 @@ namespace VeinNet
 
   NetworkSystem::OperationMode NetworkSystem::operationMode()
   {
-    Q_D(NetworkSystem);
-
-    return d->m_operationMode;
+    return d_ptr->m_operationMode;
   }
 
   void NetworkSystem::setOperationMode(const NetworkSystem::OperationMode &t_operationMode)
   {
-    Q_D(NetworkSystem);
-
-    d->m_operationMode = t_operationMode;
+    d_ptr->m_operationMode = t_operationMode;
   }
 
   bool NetworkSystem::processEvent(QEvent *t_event)
   {
-    Q_D(NetworkSystem);
     bool retVal = false;
 
     if(t_event->type() == ProtocolEvent::getEventType())
@@ -271,12 +263,12 @@ namespace VeinNet
       if(pEvent != 0 /* && pEvent->eventOrigin() == ProtocolEvent::CO_FOREIGN */) //< this is checked differently in processProtoEvent
       {
         retVal = true;
-        d->processProtoEvent(pEvent);
+        d_ptr->processProtoEvent(pEvent);
       }
     }
     else if(t_event->type() == CommandEvent::eventType())
     {
-      switch (d->m_operationMode)
+      switch (d_ptr->m_operationMode)
       {
         case VeinNet::NetworkSystem::VNOM_DEBUG:
         {
@@ -293,7 +285,7 @@ namespace VeinNet
              && cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && cEvent->eventData()->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
-            protobuf::VeinProtocol *protoEnvelope = d->prepareEnvelope(cEvent);
+            protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
             QList<int> protoReceivers;
 
             if(cEvent->peerId() >= 0)
@@ -301,7 +293,7 @@ namespace VeinNet
               protoReceivers = QList<int>() << cEvent->peerId();
             }
 
-            d->sendNetworkEvent(protoReceivers, protoEnvelope);
+            d_ptr->sendNetworkEvent(protoReceivers, protoEnvelope);
 
 
             retVal = true;
@@ -323,7 +315,7 @@ namespace VeinNet
             bool isDiscarded = false;
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION && cEvent->eventData()->type() == VeinComponent::EntityData::dataType())
             {
-              isDiscarded = d->handleSubscription(static_cast<VeinComponent::EntityData *>(cEvent->eventData()), cEvent->peerId());
+              isDiscarded = d_ptr->handleSubscription(static_cast<VeinComponent::EntityData *>(cEvent->eventData()), cEvent->peerId());
             }
 
             if(isDiscarded) //the current event is addressed to this system so do not send it over the network
@@ -331,15 +323,15 @@ namespace VeinNet
               cEvent->setAccepted(true);
               retVal = true;
             }
-            else if(d->m_subscriptions.contains(cEvent->eventData()->entityId()))
+            else if(d_ptr->m_subscriptions.contains(cEvent->eventData()->entityId()))
             {
-              QList<int> protoReceivers=d->m_subscriptions.value(cEvent->eventData()->entityId());
+              QList<int> protoReceivers=d_ptr->m_subscriptions.value(cEvent->eventData()->entityId());
 
               if(protoReceivers.isEmpty() == false)
               {
-                protobuf::VeinProtocol *protoEnvelope = d->prepareEnvelope(cEvent);
+                protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
                 qCDebug(VEIN_NET_VERBOSE) << "Processing command event:" << cEvent << "type:" << static_cast<qint8>(cEvent->eventSubtype());// << "new event:" << protoEvent;
-                d->sendNetworkEvent(protoReceivers, protoEnvelope);
+                d_ptr->sendNetworkEvent(protoReceivers, protoEnvelope);
                 retVal = true;
               }
             }
@@ -356,7 +348,7 @@ namespace VeinNet
       if(sEvent)
       {
         retVal = true;
-        d->handleNetworkStatusEvent(sEvent);
+        d_ptr->handleNetworkStatusEvent(sEvent);
       }
     }
     return retVal;

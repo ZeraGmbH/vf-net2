@@ -13,7 +13,6 @@ namespace VeinNet
 {
   class VEINNETSHARED_EXPORT ProtocolEvent : public QEvent
   {
-    Q_DISABLE_COPY(ProtocolEvent)
   public:
     explicit ProtocolEvent(const bool &t_fromLocalOrigin);
 
