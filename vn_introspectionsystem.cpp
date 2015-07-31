@@ -1,6 +1,7 @@
 #include "vn_introspectionsystem.h"
 
 #include <QEvent>
+#include <QJsonArray>
 
 #include <ve_commandevent.h>
 #include <ve_storagesystem.h>
@@ -55,7 +56,7 @@ namespace VeinNet
 
           if(eData->eventCommand() == VeinComponent::EntityData::ECMD_SUBSCRIBE)
           {
-            qCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent;
+            qCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
             IntrospectionData *newData=0;
             QJsonObject tmpObject;
 
@@ -99,6 +100,22 @@ namespace VeinNet
             }
           }
         }
+        else if(cEvent->eventData()->type() == ComponentData::dataType())
+        {
+          ComponentData *cData=0;
+          cData = static_cast<ComponentData *>(cEvent->eventData());
+          if(cData != 0 && cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)
+          {
+            qCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command CCMD_FETCH, entityId:" << cData->entityId() << "componentName:" << cData->componentName();
+
+            cData->setNewValue(m_storage->getStoredValue(cData->entityId(), cData->componentName()));
+            cData->setEventOrigin(ComponentData::EventOrigin::EO_LOCAL);
+            cData->setEventTarget(ComponentData::EventTarget::ET_ALL);
+            cEvent->setEventSubtype(CommandEvent::EventSubtype::NOTIFICATION);
+
+            retVal = true;
+          }
+        }
       }
     }
 
@@ -110,12 +127,8 @@ namespace VeinNet
     QJsonObject retVal;
     if(m_storage && m_storage->hasEntity(t_entityId))
     {
-      const QHash<QString, QVariant> *tmpData = m_storage->getEntityDataCopy(t_entityId);
-
-      foreach(QString tmpKey, tmpData->keys())
-      {
-        retVal.insert(tmpKey, QJsonValue::fromVariant(tmpData->value(tmpKey)));
-      }
+      QStringList keyList = m_storage->getEntityDataCopy(t_entityId)->keys();
+      retVal.insert(QString("components"), QJsonArray::fromStringList(keyList));
     }
     return retVal;
   }
