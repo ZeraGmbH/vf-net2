@@ -30,6 +30,11 @@ namespace VeinNet
 
 
   private:
+    /**
+     * @brief Retursn the introspection in JSON format
+     * @param t_entityId
+     * @return
+     */
     QJsonObject getJsonIntrospection(int t_entityId) const;
 
     /**

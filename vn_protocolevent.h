@@ -37,7 +37,12 @@ namespace VeinNet
     void setPeerId(int t_peerId);
 
   private:
+    /**
+     * @brief this flag is used to distinguish between local and remote events
+     * @note the current policy prohibiting retransmissions of non local events may be to restrictive (for e.g. proxies)
+     */
     const bool m_localOrigin;
+
     /**
      * @brief stored protobuf data
      * @note will be deleted in event destructor

@@ -101,9 +101,24 @@ namespace VeinNet
     bool processEvent(QEvent *t_event) override;
 
   private:
+    /**
+     * @brief List of clients waiting for approval
+     */
     QList<XiQNetPeer *> m_waitingAuth;
+
+    /**
+     * @brief List of active clients
+     */
     VeinHelper::HandleManager<int, XiQNetPeer *> m_peerList;
+
+    /**
+     * @brief The server instance
+     */
     XiQNetServer *m_server = 0;
+
+    /**
+     * @brief protobuf wrapper object used for serialization
+     */
     ProtocolWrapper *m_protoWrapper = 0;
   };
 }
