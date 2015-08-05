@@ -56,7 +56,7 @@ namespace VeinNet
 
           if(eData->eventCommand() == VeinComponent::EntityData::ECMD_SUBSCRIBE)
           {
-            qCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
+            vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
             IntrospectionData *newData=0;
             QJsonObject tmpObject;
 
@@ -73,7 +73,7 @@ namespace VeinNet
               /// @note sets the peer id to be the sender peer id, used for unicasting the message
               newEvent->setPeerId(cEvent->peerId());
 
-              qCDebug(VEIN_NET_INTRO) << "Sending introspection event:" << newEvent;
+              vCDebug(VEIN_NET_INTRO) << "Sending introspection event:" << newEvent;
 
               emit sigSendEvent(newEvent);
 
@@ -106,7 +106,7 @@ namespace VeinNet
           cData = static_cast<ComponentData *>(cEvent->eventData());
           if(cData != 0 && cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)
           {
-            qCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command CCMD_FETCH, entityId:" << cData->entityId() << "componentName:" << cData->componentName();
+            vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command CCMD_FETCH, entityId:" << cData->entityId() << "componentName:" << cData->componentName();
 
             cData->setNewValue(m_storage->getStoredValue(cData->entityId(), cData->componentName()));
             cData->setEventOrigin(ComponentData::EventOrigin::EO_LOCAL);

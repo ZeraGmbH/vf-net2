@@ -20,13 +20,13 @@ namespace VeinNet
     m_server(new XiQNetServer(this)),
     m_protoWrapper(new ProtocolWrapper())
   {
-    qCDebug(VEIN_NET_TCP)  << "Created TCP system";
+    vCDebug(VEIN_NET_TCP)  << "Created TCP system";
     connect(m_server, &XiQNetServer::sigClientConnected, this, &TcpSystem::onClientConnected);
   }
 
   TcpSystem::~TcpSystem()
   {
-    qCDebug(VEIN_NET_TCP)  << "Destroyed TCP system";
+    vCDebug(VEIN_NET_TCP)  << "Destroyed TCP system";
     delete m_protoWrapper;
   }
 
@@ -79,7 +79,7 @@ namespace VeinNet
 
     int tmpPeerId = tmpPPeer->getPeerId();
 
-    qCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
+    vCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
     m_waitingAuth.removeAll(tmpPPeer);
     m_peerList.remove(tmpPeerId);
     delete tmpPPeer;
@@ -95,7 +95,7 @@ namespace VeinNet
     NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED, tmpPeerId);
     emit sigSendEvent(sEvent);
 
-    qCDebug(VEIN_NET_TCP) << "Client disconnected with ID:" << tmpPeerId << "sent NetworkStatusEvent:" << sEvent;
+    vCDebug(VEIN_NET_TCP) << "Client disconnected with ID:" << tmpPeerId << "sent NetworkStatusEvent:" << sEvent;
     m_waitingAuth.removeAll(tmpPPeer);
     m_peerList.remove(tmpPeerId);
     emit sigClientDisconnected(tmpPeerId);
@@ -111,11 +111,11 @@ namespace VeinNet
       proto = static_cast<protobuf::VeinProtocol *>(t_protobufMessage);
       if(proto)
       {
-        //qCDebug(VEIN_NET_TCP)  << "Message received:" << proto->DebugString().c_str();
+        //vCDebug(VEIN_NET_TCP)  << "Message received:" << proto->DebugString().c_str();
         if(m_waitingAuth.contains(tmpPPeer))
         {
           int newId = m_peerList.append(tmpPPeer);
-          qCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
+          vCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
           tmpPPeer->setPeerId(newId);
 
           m_waitingAuth.removeAll(tmpPPeer);
@@ -126,7 +126,7 @@ namespace VeinNet
         tmpEvent->setPeerId(tmpPPeer->getPeerId());
         if(proto->command_size()>0)
         {
-          qCDebug(VEIN_NET_TCP_VERBOSE) << "Received protocol event of type:" << proto->command(0).datatype();
+          vCDebug(VEIN_NET_TCP_VERBOSE) << "Received protocol event of type:" << proto->command(0).datatype();
         }
         emit sigSendEvent(tmpEvent);
       }
@@ -140,7 +140,7 @@ namespace VeinNet
     {
       NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, tmpPPeer->getPeerId());
       sEvent->setError(t_socketError);
-      qCDebug(VEIN_NET_TCP) << "Connection error on network with id:" << tmpPPeer->getPeerId() << "error:" << tmpPPeer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
+      qCCritical(VEIN_NET_TCP) << "Connection error on network with id:" << tmpPPeer->getPeerId() << "error:" << tmpPPeer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
       emit sigSendEvent(sEvent);
     }
   }
@@ -153,10 +153,10 @@ namespace VeinNet
     {
       pEvent = static_cast<ProtocolEvent *>(t_event);
 
-      // do not process protocol events from foreign systems, that is the job of NetworkSystem
+      //do not process protocol events from foreign systems, that is the job of NetworkSystem
       if(pEvent && pEvent->isOfLocalOrigin() == true)
       {
-        qCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent;// << pEvent->protobuf()->DebugString().c_str();
+        vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent;// << pEvent->protobuf()->DebugString().c_str();
 
         //send to all
         if(pEvent->receivers().isEmpty())

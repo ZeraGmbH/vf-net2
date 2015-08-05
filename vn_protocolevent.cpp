@@ -21,7 +21,7 @@ namespace VeinNet
     if(m_eventType==0)
     {
       m_eventType = QEvent::registerEventType();
-      qCDebug(VEIN_NET) << "Registered ProtocolEvent as event type:"<<m_eventType;
+      vCDebug(VEIN_NET) << "Registered ProtocolEvent as event type:"<<m_eventType;
     }
     return m_eventType;
   }

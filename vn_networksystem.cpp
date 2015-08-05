@@ -102,7 +102,7 @@ namespace VeinNet
             if(tmpEvent != 0)
             {
               tmpEvent->setPeerId(t_pEvent->peerId());
-              qCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
+              vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
               emit q_ptr->sigSendEvent(tmpEvent);
             }
           }
@@ -127,7 +127,7 @@ namespace VeinNet
           }
           m_subscriptions.insert(t_eData->entityId(), tmpCurrentSubscriptions);
 
-          qCDebug(VEIN_NET) << "Added subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
+          vCDebug(VEIN_NET) << "Added subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
           retVal = true;
           break;
         }
@@ -136,7 +136,7 @@ namespace VeinNet
           QList<int> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
           tmpCurrentSubscriptions.removeAll(t_peerId);
           m_subscriptions.insert(t_eData->entityId(), tmpCurrentSubscriptions);
-          qCDebug(VEIN_NET) << "Removed subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
+          vCDebug(VEIN_NET) << "Removed subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
           retVal = true;
           break;
         }
@@ -148,7 +148,7 @@ namespace VeinNet
 
     void handleNetworkStatusEvent(NetworkStatusEvent *t_sEvent)
     {
-      qCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
+      vCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
       {
         int tmpPeerId = t_sEvent->getPeerId();
@@ -159,7 +159,7 @@ namespace VeinNet
           {
             tmpSubscribers.removeAll(tmpPeerId);
             m_subscriptions.insert(tmpKey, tmpSubscribers);
-            qCDebug(VEIN_NET) << "Removed subscription for entity:" << tmpKey << "for disconnected network peer:" << tmpPeerId;
+            vCDebug(VEIN_NET) << "Removed subscription for entity:" << tmpKey << "for disconnected network peer:" << tmpPeerId;
           }
         }
       }
@@ -233,12 +233,12 @@ namespace VeinNet
     EventSystem(t_parent),
     d_ptr(new NetworkSystemPrivate(this))
   {
-    qCDebug(VEIN_NET) << "Initialized network system";
+    vCDebug(VEIN_NET) << "Initialized network system";
   }
 
   NetworkSystem::~NetworkSystem()
   {
-    qCDebug(VEIN_NET) << "Deinitialized network system";
+    vCDebug(VEIN_NET) << "Deinitialized network system";
     delete d_ptr;
   }
 
@@ -272,7 +272,7 @@ namespace VeinNet
       {
         case VeinNet::NetworkSystem::VNOM_DEBUG:
         {
-          qCDebug(VEIN_NET_VERBOSE) << "Debug mode is enabled, dropped event:" << t_event;
+          vCDebug(VEIN_NET_VERBOSE) << "Debug mode is enabled, dropped event:" << t_event;
           t_event->accept();
           retVal = true;
           break;
@@ -330,7 +330,7 @@ namespace VeinNet
               if(protoReceivers.isEmpty() == false)
               {
                 protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
-                qCDebug(VEIN_NET_VERBOSE) << "Processing command event:" << cEvent << "type:" << static_cast<qint8>(cEvent->eventSubtype());// << "new event:" << protoEvent;
+                vCDebug(VEIN_NET_VERBOSE) << "Processing command event:" << cEvent << "type:" << static_cast<qint8>(cEvent->eventSubtype());// << "new event:" << protoEvent;
                 d_ptr->sendNetworkEvent(protoReceivers, protoEnvelope);
                 retVal = true;
               }
