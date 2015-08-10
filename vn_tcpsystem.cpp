@@ -69,7 +69,14 @@ namespace VeinNet
     if(tmpPeer)
     {
       m_waitingAuth.append(tmpPeer);
-      onClientConnected(tmpPeer);
+
+      connect(tmpPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
+      tmpPeer->setWrapper(m_protoWrapper);
+
+      /** @todo implement authentication */
+      protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
+      tmpPeer->sendMessage(protoAuth);
+      delete protoAuth;
     }
   }
 
@@ -82,7 +89,6 @@ namespace VeinNet
     vCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
     m_waitingAuth.removeAll(tmpPPeer);
     m_peerList.remove(tmpPeerId);
-    delete tmpPPeer;
   }
 
 

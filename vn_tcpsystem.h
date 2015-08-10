@@ -41,7 +41,6 @@ namespace VeinNet
   signals:
     //client part
     void sigConnnectionEstablished(int t_connectionId);
-    void sigConnnectionTimeout(int t_connectionId);
 
     //server part
     void sigClientConnected(int t_connectionId);
