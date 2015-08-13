@@ -162,24 +162,24 @@ namespace VeinNet
       //do not process protocol events from foreign systems, that is the job of NetworkSystem
       if(pEvent && pEvent->isOfLocalOrigin() == true)
       {
-        vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent;// << pEvent->protobuf()->DebugString().c_str();
-
         //send to all
         if(pEvent->receivers().isEmpty())
         {
           QList<XiQNetPeer *> tmpPeerlist = m_peerList.values();
+          vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent << "to receivers:" << tmpPeerlist;// << pEvent->protobuf()->DebugString().c_str();
           foreach(XiQNetPeer *tmpPeer, tmpPeerlist)
           {
             tmpPeer->sendMessage(pEvent->protobuf());
           }
         }
-        else
+        else //send to all explicit receivers
         {
           foreach (int receiverId, pEvent->receivers())
           {
             XiQNetPeer *tmpPeer = m_peerList.value(receiverId,0);
             if(tmpPeer)
             {
+              vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent << "to receiver:" << tmpPeer;// << pEvent->protobuf()->DebugString().c_str();
               tmpPeer->sendMessage(pEvent->protobuf());
             }
           }

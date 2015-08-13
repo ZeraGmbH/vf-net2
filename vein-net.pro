@@ -22,8 +22,8 @@ HEADERS +=\
     vn_introspectionsystem.h \
     vn_networkstatusevent.h
 
-exists( ../../project-paths.pri ) {
-  include(../../project-paths.pri)
+exists( ../../vein-framework.pri ) {
+  include(../../vein-framework.pri)
 }
 
 QT -= gui
