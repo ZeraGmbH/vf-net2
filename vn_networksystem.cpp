@@ -40,7 +40,7 @@ namespace VeinNet
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
       {
-        for(int i=0; i<commandSize; i++)
+        for(int i=0; i<commandSize; ++i)
         {
           const protobuf::Vein_Command protoCmd = protoEnvelope->command(i);
 
@@ -113,8 +113,6 @@ namespace VeinNet
 
     bool handleSubscription(VeinComponent::EntityData *t_eData, int t_peerId)
     {
-      /// @todo handle disconnected client unsubscriptions
-
       bool retVal = false;
       switch(t_eData->eventCommand())
       {

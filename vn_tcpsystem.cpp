@@ -91,8 +91,6 @@ namespace VeinNet
     m_peerList.remove(tmpPeerId);
   }
 
-
-
   void TcpSystem::onClientDisconnected()
   {
     XiQNetPeer * tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());

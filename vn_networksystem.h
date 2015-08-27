@@ -12,6 +12,10 @@ namespace VeinEvent {
 namespace VeinNet
 {
   class NetworkSystemPrivate;
+  /**
+   * @brief Turns all sort of events into ProtocolEvents and sends them depending on the OperationMode
+   * Also translates remote ProtocolEvents into regular events and posts them to the EventHandler
+   */
   class VEINNETSHARED_EXPORT NetworkSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
