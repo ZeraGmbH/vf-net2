@@ -127,7 +127,7 @@ namespace VeinNet
     QJsonObject retVal;
     if(m_storage && m_storage->hasEntity(t_entityId))
     {
-      QStringList keyList = m_storage->getEntityDataCopy(t_entityId)->keys();
+      QStringList keyList = m_storage->getEntityComponents(t_entityId);
       retVal.insert(QString("components"), QJsonArray::fromStringList(keyList));
     }
     return retVal;
