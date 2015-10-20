@@ -13,11 +13,6 @@ namespace VeinNet
 
   int NetworkStatusEvent::getEventType()
   {
-    if(m_eventType==0)
-    {
-      m_eventType = QEvent::registerEventType();
-      vCDebug(VEIN_NET) << "Registered NetworkStatusEvent as event type:"<<m_eventType;
-    }
     return m_eventType;
   }
 
@@ -41,5 +36,5 @@ namespace VeinNet
   }
 
 
-  int NetworkStatusEvent::m_eventType=0;
+  const int NetworkStatusEvent::m_eventType = QEvent::registerEventType();
 } // namespace VeinNet
