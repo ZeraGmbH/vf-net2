@@ -42,7 +42,7 @@ namespace VeinNet
     /**
      * @brief 'Randomly' assigned static event type (QEvent::Type)
      */
-    static const int m_eventType;
+    static int m_eventType;
 
     /**
      * @brief indicates the current status of the network peer
