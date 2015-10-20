@@ -57,7 +57,7 @@ namespace VeinNet
     /**
      * @brief 'Randomly' assigned static event type (QEvent::Type)
      */
-    static int m_eventType;
+    static const int m_eventType;
 
     /**
      * @brief for remote events this is the unique network id
