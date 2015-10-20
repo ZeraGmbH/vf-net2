@@ -18,11 +18,6 @@ namespace VeinNet
 
   int ProtocolEvent::getEventType()
   {
-    if(m_eventType==0)
-    {
-      m_eventType = QEvent::registerEventType();
-      vCDebug(VEIN_NET) << "Registered ProtocolEvent as event type:"<<m_eventType;
-    }
     return m_eventType;
   }
 
@@ -63,6 +58,6 @@ namespace VeinNet
       m_peerId = t_peerId;
     }
   }
-  
-  int ProtocolEvent::m_eventType = 0;
+
+  const int ProtocolEvent::m_eventType = QEvent::registerEventType();
 }
