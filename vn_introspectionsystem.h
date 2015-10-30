@@ -14,6 +14,9 @@ namespace VeinEvent
 
 namespace VeinNet
 {
+  /**
+   * @brief Collates VeinStorage data structure informations into VeinComponent::IntrospectionData for remote introspection
+   */
   class VEINNETSHARED_EXPORT IntrospectionSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT

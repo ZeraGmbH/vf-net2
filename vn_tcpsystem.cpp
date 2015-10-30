@@ -115,7 +115,7 @@ namespace VeinNet
       proto = static_cast<protobuf::VeinProtocol *>(t_protobufMessage);
       if(proto)
       {
-        //vCDebug(VEIN_NET_TCP)  << "Message received:" << proto->DebugString().c_str();
+        //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
         if(m_waitingAuth.contains(tmpPPeer))
         {
           int newId = m_peerList.append(tmpPPeer);

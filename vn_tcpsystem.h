@@ -27,7 +27,9 @@ namespace VeinNet
   class ProtocolWrapper;
 
   /**
-   * @brief handles ProtocolEvents, it interfaces libxiqnet to send messages over the network
+   * @brief TCP wire protocol implementation for protobuf::VeinProtocol data
+   *
+   * Handles ProtocolEvents, it interfaces libxiqnet to send messages over the network
    * @todo needs something like interexchangable strategy objects that allow error recovery depending on the application needs
    */
   class VEINNETSHARED_EXPORT TcpSystem : public VeinEvent::EventSystem

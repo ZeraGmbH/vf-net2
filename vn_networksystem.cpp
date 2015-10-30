@@ -17,6 +17,9 @@ using namespace VeinComponent;
 
 namespace VeinNet
 {
+  /**
+   * @brief PIMPL for VeinNet::NetworkSystem
+   */
   class NetworkSystemPrivate
   {
 
@@ -166,7 +169,7 @@ namespace VeinNet
         switch(t_sEvent->getError())
         {
           case QAbstractSocket::RemoteHostClosedError:
-            break; ///< @todo reconnect here?
+            break; /// @todo reconnect here?
           default:
             break;
         }

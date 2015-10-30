@@ -11,6 +11,9 @@ namespace protobuf
 
 namespace VeinNet
 {
+  /**
+   * @brief Event containing protobuf::VeinProtocol data that is exchanged between VeinNet::NetworkSystem and the wire implementations (e.g. VeinNet::TcpSystem)
+   */
   class VEINNETSHARED_EXPORT ProtocolEvent : public QEvent
   {
   public:

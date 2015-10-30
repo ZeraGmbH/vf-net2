@@ -9,7 +9,7 @@
 namespace VeinNet
 {
   /**
-   * @brief Notifies about status changes
+   * @brief Notifies about network status changes
    * @note at the time the event is received the corresponding peer could already be deleted
    */
   class VEINNETSHARED_EXPORT NetworkStatusEvent : public QEvent

@@ -4,8 +4,26 @@
 #include "veinnet_global.h"
 #include <xiqnetwrapper.h>
 
+/**
+ * @brief namespace for Custom google::protobuf based protocols
+ */
+namespace protobuf {} // only used for doxygen documentation
+
+/**
+ * @brief Google namespace
+ */
+namespace google {
+  /**
+   * @brief Google protocol buffer namespace https://developers.google.com/protocol-buffers/
+   */
+  namespace protobuf {} // only used for doxygen documentation
+}
+
 namespace VeinNet
 {
+  /**
+   * @brief A Wrapper implementation for protobuf::VeinProtocol
+   */
   class VEINNETSHARED_EXPORT ProtocolWrapper : public XiQNetWrapper
   {
   public:
