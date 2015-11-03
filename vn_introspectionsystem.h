@@ -22,10 +22,9 @@ namespace VeinNet
     Q_OBJECT
 
   public:
-    explicit IntrospectionSystem(QObject *t_parent=0);
+    explicit IntrospectionSystem(VeinEvent::StorageSystem *t_storage, QObject *t_parent=0);
 
     VeinEvent::StorageSystem *storage() const;
-    void setStorage(VeinEvent::StorageSystem *t_storage);
 
     // EventSystem interface
   public:

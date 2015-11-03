@@ -19,23 +19,16 @@ using namespace VeinComponent;
 
 namespace VeinNet
 {
-  IntrospectionSystem::IntrospectionSystem(QObject *t_parent) :
-    VeinEvent::EventSystem(t_parent)
+  IntrospectionSystem::IntrospectionSystem(VeinEvent::StorageSystem *t_storage, QObject *t_parent) :
+    VeinEvent::EventSystem(t_parent),
+    m_storage(t_storage)
   {
-
+    Q_ASSERT(m_storage != 0);
   }
 
   StorageSystem *IntrospectionSystem::storage() const
   {
     return m_storage;
-  }
-
-  void IntrospectionSystem::setStorage(StorageSystem *t_storage)
-  {
-    if(t_storage)
-    {
-      m_storage = t_storage;
-    }
   }
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
@@ -46,13 +39,15 @@ namespace VeinNet
     {
       CommandEvent *cEvent = 0;
       cEvent = static_cast<CommandEvent *>(t_event);
+      Q_ASSERT(cEvent != 0);
 
-      if(cEvent != 0 && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+      if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
         if (cEvent->eventData()->type() == EntityData::dataType())
         {
           EntityData *eData=0;
           eData = static_cast<EntityData *>(cEvent->eventData());
+          Q_ASSERT(eData != 0);
 
           if(eData->eventCommand() == VeinComponent::EntityData::ECMD_SUBSCRIBE)
           {
@@ -104,7 +99,9 @@ namespace VeinNet
         {
           ComponentData *cData=0;
           cData = static_cast<ComponentData *>(cEvent->eventData());
-          if(cData != 0 && cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)
+          Q_ASSERT(cData != 0);
+
+          if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)
           {
             vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command CCMD_FETCH, entityId:" << cData->entityId() << "componentName:" << cData->componentName();
 
@@ -125,7 +122,8 @@ namespace VeinNet
   QJsonObject IntrospectionSystem::getJsonIntrospection(int t_entityId) const
   {
     QJsonObject retVal;
-    if(m_storage && m_storage->hasEntity(t_entityId))
+
+    if(m_storage->hasEntity(t_entityId))
     {
       QStringList keyList = m_storage->getEntityComponents(t_entityId);
       retVal.insert(QString("components"), QJsonArray::fromStringList(keyList));

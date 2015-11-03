@@ -53,10 +53,8 @@ namespace VeinNet
 
   void ProtocolEvent::setPeerId(int t_peerId)
   {
-    if(t_peerId>=0)
-    {
-      m_peerId = t_peerId;
-    }
+    VF_ASSERT(t_peerId >= 0, "Peer id must be >= 0");
+    m_peerId = t_peerId;
   }
 
   const int ProtocolEvent::m_eventType = QEvent::registerEventType();

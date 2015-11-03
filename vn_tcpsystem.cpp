@@ -40,6 +40,9 @@ namespace VeinNet
 
   void TcpSystem::connectToServer(QString t_host, quint16 t_port)
   {
+    VF_ASSERT(!t_host.isEmpty(), "Empty host");
+    VF_ASSERT(t_port > 0, "Port must be > 0");
+
     XiQNetPeer *tmpPeer = new XiQNetPeer(this);
     tmpPeer->setWrapper(m_protoWrapper);
     connect(tmpPeer, SIGNAL(sigSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
@@ -66,23 +69,23 @@ namespace VeinNet
   {
     /// @todo add the caller as parameter and trash this useless cast
     XiQNetPeer *tmpPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
-    if(tmpPeer)
-    {
-      m_waitingAuth.append(tmpPeer);
+    Q_ASSERT(tmpPeer != 0);
 
-      connect(tmpPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
-      tmpPeer->setWrapper(m_protoWrapper);
+    m_waitingAuth.append(tmpPeer);
 
-      /** @todo implement authentication */
-      protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
-      tmpPeer->sendMessage(protoAuth);
-      delete protoAuth;
-    }
+    connect(tmpPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
+    tmpPeer->setWrapper(m_protoWrapper);
+
+    /** @todo implement authentication */
+    protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
+    tmpPeer->sendMessage(protoAuth);
+    delete protoAuth;
   }
 
   void TcpSystem::onConnectionClosed()
   {
     XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    Q_ASSERT(tmpPPeer != 0);
 
     int tmpPeerId = tmpPPeer->getPeerId();
 
@@ -94,6 +97,8 @@ namespace VeinNet
   void TcpSystem::onClientDisconnected()
   {
     XiQNetPeer * tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    Q_ASSERT(tmpPPeer != 0);
+
     int tmpPeerId = tmpPPeer->getPeerId();
 
     NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED, tmpPeerId);
@@ -108,57 +113,59 @@ namespace VeinNet
 
   void TcpSystem::onMessageReceived(google::protobuf::Message *t_protobufMessage)
   {
-    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
-    if(tmpPPeer != 0 && t_protobufMessage != 0)
-    {
-      protobuf::VeinProtocol *proto = 0;
-      proto = static_cast<protobuf::VeinProtocol *>(t_protobufMessage);
-      if(proto)
-      {
-        //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
-        if(m_waitingAuth.contains(tmpPPeer))
-        {
-          int newId = m_peerList.append(tmpPPeer);
-          vCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
-          tmpPPeer->setPeerId(newId);
+    Q_ASSERT(t_protobufMessage != 0);
 
-          m_waitingAuth.removeAll(tmpPPeer);
-          emit sigConnnectionEstablished(newId);
-        }
-        ProtocolEvent *tmpEvent = new ProtocolEvent(false);
-        tmpEvent->setProtobuf(proto);
-        tmpEvent->setPeerId(tmpPPeer->getPeerId());
-        if(proto->command_size()>0)
-        {
-          vCDebug(VEIN_NET_TCP_VERBOSE) << "Received protocol event of type:" << proto->command(0).datatype();
-        }
-        emit sigSendEvent(tmpEvent);
-      }
+    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    Q_ASSERT(tmpPPeer != 0);
+
+    protobuf::VeinProtocol *proto = 0;
+    proto = static_cast<protobuf::VeinProtocol *>(t_protobufMessage);
+    Q_ASSERT(proto != 0);
+
+    //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
+    if(m_waitingAuth.contains(tmpPPeer))
+    {
+      int newId = m_peerList.append(tmpPPeer);
+      vCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
+      tmpPPeer->setPeerId(newId);
+
+      m_waitingAuth.removeAll(tmpPPeer);
+      emit sigConnnectionEstablished(newId);
     }
+    ProtocolEvent *tmpEvent = new ProtocolEvent(false);
+    tmpEvent->setProtobuf(proto);
+    tmpEvent->setPeerId(tmpPPeer->getPeerId());
+    if(proto->command_size()>0)
+    {
+      vCDebug(VEIN_NET_TCP_VERBOSE) << "Received protocol event of type:" << proto->command(0).datatype();
+    }
+    emit sigSendEvent(tmpEvent);
   }
 
   void TcpSystem::onSocketError(QAbstractSocket::SocketError t_socketError)
   {
     XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
-    if(tmpPPeer)
-    {
-      NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, tmpPPeer->getPeerId());
-      sEvent->setError(t_socketError);
-      qCCritical(VEIN_NET_TCP) << "Connection error on network with id:" << tmpPPeer->getPeerId() << "error:" << tmpPPeer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
-      emit sigSendEvent(sEvent);
-    }
+    Q_ASSERT(tmpPPeer != 0);
+
+    NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, tmpPPeer->getPeerId());
+    sEvent->setError(t_socketError);
+    qCCritical(VEIN_NET_TCP) << "Connection error on network with id:" << tmpPPeer->getPeerId() << "error:" << tmpPPeer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
+    emit sigSendEvent(sEvent);
   }
 
   bool TcpSystem::processEvent(QEvent *t_event)
   {
+    Q_ASSERT(t_event != 0);
+
     bool retVal = false;
-    ProtocolEvent *pEvent=0;
     if(t_event->type()==ProtocolEvent::getEventType())
     {
+      ProtocolEvent *pEvent=0;
       pEvent = static_cast<ProtocolEvent *>(t_event);
+      Q_ASSERT(pEvent != 0);
 
       //do not process protocol events from foreign systems, that is the job of NetworkSystem
-      if(pEvent && pEvent->isOfLocalOrigin() == true)
+      if(pEvent->isOfLocalOrigin() == true)
       {
         //send to all
         if(pEvent->receivers().isEmpty())

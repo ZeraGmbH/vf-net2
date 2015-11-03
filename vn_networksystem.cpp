@@ -36,13 +36,11 @@ namespace VeinNet
 
     void processProtoEvent(ProtocolEvent *t_pEvent)
     {
-      protobuf::VeinProtocol *protoEnvelope = t_pEvent->protobuf();
-      const int commandSize = protoEnvelope->command_size();
-
-
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
       {
+        protobuf::VeinProtocol *protoEnvelope = t_pEvent->protobuf();
+        const int commandSize = protoEnvelope->command_size();
         for(int i=0; i<commandSize; ++i)
         {
           const protobuf::Vein_Command protoCmd = protoEnvelope->command(i);
@@ -255,17 +253,20 @@ namespace VeinNet
 
   bool NetworkSystem::processEvent(QEvent *t_event)
   {
+    Q_ASSERT(t_event != 0);
     bool retVal = false;
 
     if(t_event->type() == ProtocolEvent::getEventType())
     {
       ProtocolEvent *pEvent=0;
       pEvent = static_cast<ProtocolEvent *>(t_event);
-      if(pEvent != 0 /* && pEvent->eventOrigin() == ProtocolEvent::CO_FOREIGN */) //< this is checked differently in processProtoEvent
-      {
-        retVal = true;
-        d_ptr->processProtoEvent(pEvent);
-      }
+      Q_ASSERT(pEvent != 0);
+
+      //      if(pEvent->eventOrigin() == ProtocolEvent::CO_FOREIGN ) //< this is checked differently in processProtoEvent
+      //      {
+      retVal = true;
+      d_ptr->processProtoEvent(pEvent);
+      //      }
     }
     else if(t_event->type() == CommandEvent::eventType())
     {
@@ -282,8 +283,9 @@ namespace VeinNet
         {
           VeinEvent::CommandEvent *cEvent = 0;
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-          if(cEvent != 0
-             && cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
+          Q_ASSERT(cEvent != 0);
+
+          if(cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && cEvent->eventData()->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
             protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
@@ -309,8 +311,9 @@ namespace VeinNet
           //   send the event to all active subscribers
           VeinEvent::CommandEvent *cEvent = 0;
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-          if(cEvent != 0
-             && cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
+          Q_ASSERT(cEvent != 0);
+
+          if(cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && cEvent->eventData()->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
             bool isDiscarded = false;
@@ -345,12 +348,10 @@ namespace VeinNet
     {
       NetworkStatusEvent *sEvent = 0;
       sEvent=static_cast<NetworkStatusEvent *>(t_event);
+      Q_ASSERT(sEvent != 0);
 
-      if(sEvent)
-      {
-        retVal = true;
-        d_ptr->handleNetworkStatusEvent(sEvent);
-      }
+      retVal = true;
+      d_ptr->handleNetworkStatusEvent(sEvent);
     }
     return retVal;
   }
