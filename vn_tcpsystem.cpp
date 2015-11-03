@@ -161,7 +161,7 @@ namespace VeinNet
 
     bool retVal = false;
     if(t_event->type()==ProtocolEvent::getEventType())
-
+    {
       ProtocolEvent *pEvent=0;
       pEvent = static_cast<ProtocolEvent *>(t_event);
       Q_ASSERT(pEvent != 0);
