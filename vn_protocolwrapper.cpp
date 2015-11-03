@@ -27,6 +27,8 @@ namespace VeinNet
 
   QByteArray ProtocolWrapper::protobufToByteArray(google::protobuf::Message *t_protobufMessage)
   {
+    Q_ASSERT(t_protobufMessage != 0);
+
     QByteArray retVal;
     retVal.resize(t_protobufMessage->ByteSize());
     if(t_protobufMessage->SerializeToArray(retVal.data(), retVal.size()))

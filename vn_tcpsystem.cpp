@@ -53,6 +53,8 @@ namespace VeinNet
 
   void TcpSystem::onClientConnected(XiQNetPeer *t_networkPeer)
   {
+    Q_ASSERT(t_networkPeer != 0);
+
     connect(t_networkPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
     t_networkPeer->setWrapper(m_protoWrapper);
     m_waitingAuth.append(t_networkPeer);
@@ -159,7 +161,7 @@ namespace VeinNet
 
     bool retVal = false;
     if(t_event->type()==ProtocolEvent::getEventType())
-    {
+
       ProtocolEvent *pEvent=0;
       pEvent = static_cast<ProtocolEvent *>(t_event);
       Q_ASSERT(pEvent != 0);

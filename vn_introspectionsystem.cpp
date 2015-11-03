@@ -33,6 +33,7 @@ namespace VeinNet
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
+    Q_ASSERT(t_event != 0);
     bool retVal = false;
 
     if(t_event->type()==CommandEvent::eventType())

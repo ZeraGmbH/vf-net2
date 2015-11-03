@@ -36,6 +36,7 @@ namespace VeinNet
 
     void processProtoEvent(ProtocolEvent *t_pEvent)
     {
+      Q_ASSERT(t_pEvent != 0);
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
       {
@@ -114,6 +115,8 @@ namespace VeinNet
 
     bool handleSubscription(VeinComponent::EntityData *t_eData, int t_peerId)
     {
+      Q_ASSERT(t_eData != 0);
+
       bool retVal = false;
       switch(t_eData->eventCommand())
       {
@@ -176,6 +179,8 @@ namespace VeinNet
 
     protobuf::VeinProtocol *prepareEnvelope(VeinEvent::CommandEvent *t_cEvent)
     {
+      Q_ASSERT(t_cEvent != 0);
+
       protobuf::VeinProtocol *retVal = 0;
       protobuf::Vein_Command *protoCmd = 0;
       QByteArray tmpData;
@@ -206,6 +211,8 @@ namespace VeinNet
 
     void sendNetworkEvent(QList<int> t_receivers, protobuf::VeinProtocol *t_data)
     {
+      Q_ASSERT(t_data != 0);
+
       ProtocolEvent *protoEvent = new ProtocolEvent(true); //create a new event of local origin
       protoEvent->setProtobuf(t_data);
       protoEvent->setReceivers(t_receivers);

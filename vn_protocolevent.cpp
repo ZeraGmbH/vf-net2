@@ -28,6 +28,8 @@ namespace VeinNet
 
   void ProtocolEvent::setProtobuf(protobuf::VeinProtocol *t_protobuf)
   {
+    Q_ASSERT(t_protobuf != 0);
+
     m_protobuf =t_protobuf;
   }
 
