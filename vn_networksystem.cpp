@@ -84,6 +84,7 @@ namespace VeinNet
               break;
             }
           }
+          VF_ASSERT(evData != 0, "Unhandled event datatype");
 
           if(evData != 0 && evData->isValid())
           {
@@ -101,12 +102,15 @@ namespace VeinNet
                 break;
               }
             }
-            if(tmpEvent != 0)
-            {
-              tmpEvent->setPeerId(t_pEvent->peerId());
-              vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
-              emit q_ptr->sigSendEvent(tmpEvent);
-            }
+            Q_ASSERT(tmpEvent != 0);
+
+            tmpEvent->setPeerId(t_pEvent->peerId());
+            vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
+            emit q_ptr->sigSendEvent(tmpEvent);
+          }
+          else
+          {
+            qCWarning(VEIN_NET) << "Received invalid event from protobuf:" << protoCmd.DebugString().c_str();
           }
         }
       }

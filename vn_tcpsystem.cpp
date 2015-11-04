@@ -32,10 +32,9 @@ namespace VeinNet
 
   void TcpSystem::startServer(quint16 t_port)
   {
-    if(!m_server->isListening())
-    {
-      m_server->startServer(t_port);
-    }
+    Q_ASSERT(m_server->isListening() == false);
+
+    m_server->startServer(t_port);
   }
 
   void TcpSystem::connectToServer(QString t_host, quint16 t_port)
