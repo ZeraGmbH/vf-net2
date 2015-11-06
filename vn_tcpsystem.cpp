@@ -39,7 +39,7 @@ namespace VeinNet
 
   void TcpSystem::connectToServer(QString t_host, quint16 t_port)
   {
-    VF_ASSERT(!t_host.isEmpty(), "Empty host");
+    VF_ASSERT(t_host.isEmpty() == false, "Empty host");
     VF_ASSERT(t_port > 0, "Port must be > 0");
 
     XiQNetPeer *tmpPeer = new XiQNetPeer(this);
