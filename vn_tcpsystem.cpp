@@ -85,6 +85,7 @@ namespace VeinNet
 
   void TcpSystem::onConnectionClosed()
   {
+    /// @todo add the caller as parameter and trash this useless cast
     XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
@@ -97,6 +98,7 @@ namespace VeinNet
 
   void TcpSystem::onClientDisconnected()
   {
+    /// @todo add the caller as parameter and trash this useless cast
     XiQNetPeer * tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
