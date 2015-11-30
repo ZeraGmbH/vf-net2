@@ -224,7 +224,7 @@ namespace VeinNet
       emit q_ptr->sigSendEvent(protoEvent);
     }
 
-    NetworkSystem::OperationMode m_operationMode=NetworkSystem::VNOM_SUBCRIPTION;
+    NetworkSystem::OperationMode m_operationMode=NetworkSystem::VNOM_SUBSCRIPTION;
 
     /**
      * @brief stores current subscribers
@@ -314,7 +314,7 @@ namespace VeinNet
           }
           break;
         }
-        case VeinNet::NetworkSystem::VNOM_SUBCRIPTION:
+        case VeinNet::NetworkSystem::VNOM_SUBSCRIPTION:
         {
           // check if the event is a notification event with entity command subscribe/unsubscribe
           //   drop the event and add/remove the sender to/from the subscriber list
