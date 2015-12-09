@@ -29,8 +29,7 @@ namespace VeinNet
   {
     Q_ASSERT(t_protobufMessage != 0);
 
-    QByteArray retVal;
-    retVal.resize(t_protobufMessage->ByteSize());
+    QByteArray retVal(t_protobufMessage->ByteSize(), '\0');
     if(t_protobufMessage->SerializeToArray(retVal.data(), retVal.size()))
     {
       return retVal;
