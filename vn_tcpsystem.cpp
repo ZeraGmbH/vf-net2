@@ -42,6 +42,8 @@ namespace VeinNet
     VF_ASSERT(t_host.isEmpty() == false, "Empty host");
     VF_ASSERT(t_port > 0, "Port must be > 0");
 
+    vCDebug(VEIN_NET_TCP)  << "Attempting connection to:"<< t_host << "on port:" << t_port;
+
     XiQNetPeer *tmpPeer = new XiQNetPeer(this);
     tmpPeer->setWrapper(m_protoWrapper);
     connect(tmpPeer, SIGNAL(sigSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
@@ -86,13 +88,13 @@ namespace VeinNet
   void TcpSystem::onConnectionClosed()
   {
     /// @todo add the caller as parameter and trash this useless cast
-    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
-    Q_ASSERT(tmpPPeer != 0);
+    XiQNetPeer *tmpPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    Q_ASSERT(tmpPeer != 0);
 
-    int tmpPeerId = tmpPPeer->getPeerId();
+    int tmpPeerId = tmpPeer->getPeerId();
 
     vCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
-    m_waitingAuth.removeAll(tmpPPeer);
+    m_waitingAuth.removeAll(tmpPeer);
     m_peerList.remove(tmpPeerId);
   }
 
@@ -166,7 +168,7 @@ namespace VeinNet
       ProtocolEvent *pEvent=0;
       pEvent = static_cast<ProtocolEvent *>(t_event);
       Q_ASSERT(pEvent != 0);
-
+      /// @todo rework event origin concept
       //do not process protocol events from foreign systems, that is the job of NetworkSystem
       if(pEvent->isOfLocalOrigin() == true)
       {
