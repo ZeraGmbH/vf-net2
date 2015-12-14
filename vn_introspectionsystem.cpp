@@ -31,6 +31,8 @@ namespace VeinNet
     return m_storage;
   }
 
+  const QString IntrospectionSystem::NAME_COMPONENT="EntityName";
+
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
     Q_ASSERT(t_event != 0);
