@@ -41,15 +41,19 @@ namespace VeinNet
     if(t_event->type()==CommandEvent::eventType())
     {
       CommandEvent *cEvent = 0;
+      EventData *evData = 0;
       cEvent = static_cast<CommandEvent *>(t_event);
       Q_ASSERT(cEvent != 0);
 
+      evData = cEvent->eventData();
+      Q_ASSERT(evData != 0);
+
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
-        if (cEvent->eventData()->type() == EntityData::dataType())
+        if (evData->type() == EntityData::dataType())
         {
           EntityData *eData=0;
-          eData = static_cast<EntityData *>(cEvent->eventData());
+          eData = static_cast<EntityData *>(evData);
           Q_ASSERT(eData != 0);
 
           if(eData->eventCommand() == VeinComponent::EntityData::ECMD_SUBSCRIBE)
@@ -98,10 +102,10 @@ namespace VeinNet
             }
           }
         }
-        else if(cEvent->eventData()->type() == ComponentData::dataType())
+        else if(evData->type() == ComponentData::dataType())
         {
           ComponentData *cData=0;
-          cData = static_cast<ComponentData *>(cEvent->eventData());
+          cData = static_cast<ComponentData *>(evData);
           Q_ASSERT(cData != 0);
 
           if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)

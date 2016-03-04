@@ -86,7 +86,7 @@ namespace VeinNet
           }
           VF_ASSERT(evData != 0, "Unhandled event datatype");
 
-          if(evData != 0 && evData->isValid())
+          if(evData->isValid())
           {
             evData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_FOREIGN);
             switch(protoCmd.type())
@@ -187,6 +187,7 @@ namespace VeinNet
 
       protobuf::VeinProtocol *retVal = 0;
       protobuf::Vein_Command *protoCmd = 0;
+      VeinEvent::EventData * evData = 0;
       QByteArray tmpData;
 
       retVal = new protobuf::VeinProtocol();
@@ -205,9 +206,12 @@ namespace VeinNet
         }
       }
 
-      protoCmd->set_datatype(t_cEvent->eventData()->type());
+      evData = t_cEvent->eventData();
+      Q_ASSERT(evData != 0);
 
-      tmpData = t_cEvent->eventData()->serialize();
+      protoCmd->set_datatype(evData->type());
+
+      tmpData = evData->serialize();
 
       protoCmd->set_payload(tmpData.data(), tmpData.size());
       return retVal;
@@ -266,6 +270,7 @@ namespace VeinNet
   {
     Q_ASSERT(t_event != 0);
     bool retVal = false;
+    VeinEvent::EventData *evData = 0;
 
     if(t_event->type() == ProtocolEvent::getEventType())
     {
@@ -293,11 +298,15 @@ namespace VeinNet
         case VeinNet::NetworkSystem::VNOM_PASS_THROUGH:
         {
           VeinEvent::CommandEvent *cEvent = 0;
+
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
           Q_ASSERT(cEvent != 0);
 
-          if(cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
-             && cEvent->eventData()->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
+          evData = cEvent->eventData();
+          Q_ASSERT(evData != 0);
+
+          if(evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
+             && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
             protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
             QList<int> protoReceivers;
@@ -324,13 +333,16 @@ namespace VeinNet
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
           Q_ASSERT(cEvent != 0);
 
-          if(cEvent->eventData()->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
-             && cEvent->eventData()->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
+          evData = cEvent->eventData();
+          Q_ASSERT(evData != 0);
+
+          if(evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
+             && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
             bool isDiscarded = false;
-            if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION && cEvent->eventData()->type() == VeinComponent::EntityData::dataType())
+            if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION && evData->type() == VeinComponent::EntityData::dataType())
             {
-              isDiscarded = d_ptr->handleSubscription(static_cast<VeinComponent::EntityData *>(cEvent->eventData()), cEvent->peerId());
+              isDiscarded = d_ptr->handleSubscription(static_cast<VeinComponent::EntityData *>(evData), cEvent->peerId());
             }
 
             if(isDiscarded) //the current event is addressed to this system so do not send it over the network
@@ -338,9 +350,9 @@ namespace VeinNet
               cEvent->setAccepted(true);
               retVal = true;
             }
-            else if(d_ptr->m_subscriptions.contains(cEvent->eventData()->entityId()))
+            else if(d_ptr->m_subscriptions.contains(evData->entityId()))
             {
-              QList<int> protoReceivers=d_ptr->m_subscriptions.value(cEvent->eventData()->entityId());
+              QList<int> protoReceivers=d_ptr->m_subscriptions.value(evData->entityId());
 
               if(protoReceivers.isEmpty() == false)
               {

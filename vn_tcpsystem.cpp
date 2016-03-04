@@ -101,7 +101,7 @@ namespace VeinNet
   void TcpSystem::onClientDisconnected()
   {
     /// @todo add the caller as parameter and trash this useless cast
-    XiQNetPeer * tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
     int tmpPeerId = tmpPPeer->getPeerId();
