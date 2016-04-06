@@ -42,7 +42,7 @@ namespace VeinNet
     VF_ASSERT(t_host.isEmpty() == false, "Empty host");
     VF_ASSERT(t_port > 0, "Port must be > 0");
 
-    vCDebug(VEIN_NET_TCP)  << "Attempting connection to:"<< t_host << "on port:" << t_port;
+    vCDebug(VEIN_NET_TCP) << "Attempting connection to:"<< t_host << "on port:" << t_port;
 
     XiQNetPeer *tmpPeer = new XiQNetPeer(this);
     tmpPeer->setWrapper(m_protoWrapper);

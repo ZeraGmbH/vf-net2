@@ -37,6 +37,7 @@ namespace VeinNet
     void processProtoEvent(ProtocolEvent *t_pEvent)
     {
       Q_ASSERT(t_pEvent != 0);
+
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
       {
@@ -154,6 +155,8 @@ namespace VeinNet
 
     void handleNetworkStatusEvent(NetworkStatusEvent *t_sEvent)
     {
+      Q_ASSERT(t_sEvent != 0);
+
       vCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
       {

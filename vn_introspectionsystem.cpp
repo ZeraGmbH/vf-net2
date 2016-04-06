@@ -75,7 +75,7 @@ namespace VeinNet
               /// @note sets the peer id to be the sender peer id, used for unicasting the message
               newEvent->setPeerId(cEvent->peerId());
 
-              vCDebug(VEIN_NET_INTRO) << "Sending introspection event:" << newEvent;
+              vCDebug(VEIN_NET_INTRO_VERBOSE) << "Sending introspection event:" << newEvent;
 
               emit sigSendEvent(newEvent);
 
