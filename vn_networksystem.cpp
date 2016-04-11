@@ -259,7 +259,7 @@ namespace VeinNet
     delete d_ptr;
   }
 
-  NetworkSystem::OperationMode NetworkSystem::operationMode()
+  NetworkSystem::OperationMode NetworkSystem::operationMode() const
   {
     return d_ptr->m_operationMode;
   }

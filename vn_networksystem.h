@@ -37,7 +37,7 @@ namespace VeinNet
       VNOM_SUBSCRIPTION /**< [default] only pass events when the other site subscribed to it */
     };
 
-    OperationMode operationMode();
+    OperationMode operationMode() const;
     void setOperationMode(const OperationMode &t_operationMode);
 
     // EventSystem interface
