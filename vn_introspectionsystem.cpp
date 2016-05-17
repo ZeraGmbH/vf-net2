@@ -50,7 +50,7 @@ namespace VeinNet
 
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
-        if (evData->type() == EntityData::dataType())
+        if(evData->type() == EntityData::dataType())
         {
           EntityData *eData=0;
           eData = static_cast<EntityData *>(evData);
