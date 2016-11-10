@@ -28,6 +28,8 @@ exists( ../../vein-framework.pri ) {
   include(../../vein-framework.pri)
 }
 
+LIBS += -lprotobuf
+
 QT -= gui
 QT += core network
 

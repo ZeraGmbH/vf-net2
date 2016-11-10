@@ -18,7 +18,7 @@ namespace VeinNet
 
   int ProtocolEvent::getEventType()
   {
-    return m_eventType;
+    return s_eventType;
   }
 
   protobuf::VeinProtocol *ProtocolEvent::protobuf() const
@@ -59,5 +59,5 @@ namespace VeinNet
     m_peerId = t_peerId;
   }
 
-  const int ProtocolEvent::m_eventType = QEvent::registerEventType();
+  const int ProtocolEvent::s_eventType = QEvent::registerEventType();
 }

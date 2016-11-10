@@ -13,7 +13,7 @@ namespace VeinNet
 
   int NetworkStatusEvent::getEventType()
   {
-    return m_eventType;
+    return s_eventType;
   }
 
   NetworkStatusEvent::NetworkStatus NetworkStatusEvent::getStatus() const
@@ -36,5 +36,5 @@ namespace VeinNet
   }
 
 
-  const int NetworkStatusEvent::m_eventType = QEvent::registerEventType();
+  const int NetworkStatusEvent::s_eventType = QEvent::registerEventType();
 } // namespace VeinNet
