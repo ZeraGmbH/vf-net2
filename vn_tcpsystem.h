@@ -84,11 +84,10 @@ namespace VeinNet
 
     /**
      * @brief onMessageReceived
-     * @param t_protobufMessage
      * @todo add support for multiple commands in one protobuf message
      * @todo do not rely on QObject::sender()
      */
-    void onMessageReceived(google::protobuf::Message *t_protobufMessage);
+    void onMessageReceived(QByteArray t_buffer);
 
     /**
      * @brief sends a NetworkStatusEvent about the socketerror
@@ -116,11 +115,6 @@ namespace VeinNet
      * @brief The server instance
      */
     XiQNetServer *m_server = 0;
-
-    /**
-     * @brief protobuf wrapper object used for serialization
-     */
-    ProtocolWrapper *m_protoWrapper = 0;
   };
 }
 #endif // VN_TCPSYSTEM_H

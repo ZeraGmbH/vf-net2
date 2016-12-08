@@ -2,12 +2,14 @@
 
 #include "vn_protocolevent.h"
 #include "vn_networkstatusevent.h"
+#include "ecs_schema_generated.h"
+#include <flatbuffers/flatbuffers.h>
+
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vcmp_introspectiondata.h>
 #include <ve_commandevent.h>
-#include <vfcore.pb.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET, "\e[1;32m<Vein.Network>\033[0m")
 Q_LOGGING_CATEGORY(VEIN_NET_VERBOSE, "\e[0;32m<Vein.Network>\033[0m")
@@ -41,77 +43,89 @@ namespace VeinNet
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
       {
-        protobuf::VeinProtocol *protoEnvelope = t_pEvent->protobuf();
-        const int commandSize = protoEnvelope->command_size();
-        for(int i=0; i<commandSize; ++i)
+        QByteArray rawBuffer = t_pEvent->buffer();
+        flatbuffers::Verifier verifier(reinterpret_cast<const uint8_t *>(rawBuffer.constData()), rawBuffer.size());
+        if(VeinFrameworkIDL::VerifyECSEnvelopeBuffer(verifier))
         {
-          const protobuf::Vein_Command protoCmd = protoEnvelope->command(i);
+          const VeinFrameworkIDL::ECSEnvelope *ecsFlatBuffer = VeinFrameworkIDL::GetECSEnvelope(rawBuffer.data());
 
-          VeinEvent::EventData *evData = 0;
-          CommandEvent *tmpEvent = 0;
-
-          switch(protoCmd.datatype())
+          auto ecsEventVector = ecsFlatBuffer->ecsEvents();
+          for(flatbuffers::uoffset_t i=0; i < ecsEventVector->size(); ++i)
           {
-            case VeinComponent::EntityData::dataType():
-            {
-              VeinComponent::EntityData * tmpData = new VeinComponent::EntityData();
-              tmpData->deserialize(QByteArray(protoCmd.payload().data(), protoCmd.payload().size()));
+            const VeinFrameworkIDL::ECSEvent *entityEvent = ecsEventVector->Get(i);
+            VeinEvent::EventData *evData = 0;
+            CommandEvent *tmpEvent = 0;
 
-              evData = tmpData;
-              break;
-            }
-            case VeinComponent::ErrorData::dataType():
-            {
-              VeinComponent::ErrorData *tmpData = new VeinComponent::ErrorData();
-              tmpData->deserialize(QByteArray(protoCmd.payload().data(), protoCmd.payload().size()));
+            const char *eventDataArray = reinterpret_cast<const char *>(entityEvent->eventData()->data());
+            const int eventDataArraySize = entityEvent->eventData()->size();
 
-              evData = tmpData;
-              break;
-            }
-            case VeinComponent::ComponentData::dataType():
+            switch(entityEvent->dataType())
             {
-              VeinComponent::ComponentData * tmpData = new VeinComponent::ComponentData();
-              tmpData->deserialize(QByteArray(protoCmd.payload().data(), protoCmd.payload().size()));
-
-              evData = tmpData;
-              break;
-            }
-            case VeinComponent::IntrospectionData::dataType():
-            {
-              VeinComponent::IntrospectionData *tmpData = new VeinComponent::IntrospectionData();
-              tmpData->deserialize(QByteArray(protoCmd.payload().data(), protoCmd.payload().size()));
-
-              evData = tmpData;
-              break;
-            }
-          }
-          VF_ASSERT(evData != 0, "Unhandled event datatype");
-
-          if(evData->isValid())
-          {
-            evData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_FOREIGN);
-            switch(protoCmd.type())
-            {
-              case protobuf::Vein_Command_CommandType_VC_NOTIFICATION:
+              case VeinComponent::EntityData::dataType():
               {
-                tmpEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, evData);
+                VeinComponent::EntityData * tmpData = new VeinComponent::EntityData();
+                tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
+
+                evData = tmpData;
                 break;
               }
-              case protobuf::Vein_Command_CommandType_VC_TRANSACTION:
+              case VeinComponent::ErrorData::dataType():
               {
-                tmpEvent = new CommandEvent(CommandEvent::EventSubtype::TRANSACTION, evData);
+                VeinComponent::ErrorData *tmpData = new VeinComponent::ErrorData();
+                tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
+
+                evData = tmpData;
+                break;
+              }
+              case VeinComponent::ComponentData::dataType():
+              {
+                VeinComponent::ComponentData * tmpData = new VeinComponent::ComponentData();
+                tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
+
+                evData = tmpData;
+                break;
+              }
+              case VeinComponent::IntrospectionData::dataType():
+              {
+                VeinComponent::IntrospectionData *tmpData = new VeinComponent::IntrospectionData();
+                tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
+
+                evData = tmpData;
                 break;
               }
             }
-            Q_ASSERT(tmpEvent != 0);
+            VF_ASSERT(evData != 0, "Unhandled event datatype");
 
-            tmpEvent->setPeerId(t_pEvent->peerId());
-            vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
-            emit q_ptr->sigSendEvent(tmpEvent);
-          }
-          else
-          {
-            qCWarning(VEIN_NET) << "Received invalid event from protobuf:" << protoCmd.DebugString().c_str();
+            if(evData->isValid())
+            {
+              evData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_FOREIGN);
+              switch(entityEvent->command())
+              {
+                case VeinFrameworkIDL::EventCommand_VC_NOTIFICATION:
+                {
+                  tmpEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, evData);
+                  break;
+                }
+                case VeinFrameworkIDL::EventCommand_VC_TRANSACTION:
+                {
+                  tmpEvent = new CommandEvent(CommandEvent::EventSubtype::TRANSACTION, evData);
+                  break;
+                }
+                default:
+                {
+                  break;
+                }
+              }
+              Q_ASSERT(tmpEvent != 0);
+
+              tmpEvent->setPeerId(t_pEvent->peerId());
+              vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
+              emit q_ptr->sigSendEvent(tmpEvent);
+            }
+            else
+            {
+              qCWarning(VEIN_NET) << "Received invalid event from FlatBuffer:" << QByteArray(eventDataArray, eventDataArraySize).toBase64();
+            }
           }
         }
       }
@@ -184,48 +198,61 @@ namespace VeinNet
       }
     }
 
-    protobuf::VeinProtocol *prepareEnvelope(VeinEvent::CommandEvent *t_cEvent)
+    QByteArray prepareEnvelope(VeinEvent::CommandEvent *t_cEvent)
     {
       Q_ASSERT(t_cEvent != 0);
 
-      protobuf::VeinProtocol *retVal = 0;
-      protobuf::Vein_Command *protoCmd = 0;
       VeinEvent::EventData * evData = 0;
-      QByteArray tmpData;
-
-      retVal = new protobuf::VeinProtocol();
-      protoCmd = retVal->add_command();
-      switch(t_cEvent->eventSubtype())
-      {
-        case CommandEvent::EventSubtype::NOTIFICATION:
-        {
-          protoCmd->set_type(protobuf::Vein_Command_CommandType_VC_NOTIFICATION);
-          break;
-        }
-        case CommandEvent::EventSubtype::TRANSACTION:
-        {
-          protoCmd->set_type(protobuf::Vein_Command_CommandType_VC_TRANSACTION);
-          break;
-        }
-      }
+      QByteArray retVal;
+      QByteArray serializedEventData;
 
       evData = t_cEvent->eventData();
       Q_ASSERT(evData != 0);
 
-      protoCmd->set_datatype(evData->type());
 
-      tmpData = evData->serialize();
+      serializedEventData = evData->serialize();
+      auto dataVector = m_flatBufferBuilder.CreateVector<int8_t>(reinterpret_cast<const int8_t *>(serializedEventData.constData()), static_cast<size_t>(serializedEventData.size()));
+      auto ecsEventBuilder = VeinFrameworkIDL::ECSEventBuilder(m_flatBufferBuilder);
 
-      protoCmd->set_payload(tmpData.data(), tmpData.size());
+      switch(t_cEvent->eventSubtype())
+      {
+        case CommandEvent::EventSubtype::NOTIFICATION:
+        {
+          ecsEventBuilder.add_command(VeinFrameworkIDL::EventCommand_VC_NOTIFICATION);
+          break;
+        }
+        case CommandEvent::EventSubtype::TRANSACTION:
+        {
+          ecsEventBuilder.add_command(VeinFrameworkIDL::EventCommand_VC_TRANSACTION);
+          break;
+        }
+      }
+
+      ecsEventBuilder.add_dataType(evData->type());
+      ecsEventBuilder.add_eventData(dataVector);
+
+      flatbuffers::Offset<VeinFrameworkIDL::ECSEvent> ecsEvent = ecsEventBuilder.Finish();
+      std::vector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>> tmpEventVector;
+      tmpEventVector.push_back(ecsEvent);
+
+      auto eventVector = m_flatBufferBuilder.CreateVector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>>(tmpEventVector);
+      VeinFrameworkIDL::ECSEnvelopeBuilder ecsEnvelopeBuilder = VeinFrameworkIDL::ECSEnvelopeBuilder(m_flatBufferBuilder);
+      ecsEnvelopeBuilder.add_ecsEvents(eventVector);
+      auto rootElement = ecsEnvelopeBuilder.Finish();
+      m_flatBufferBuilder.Finish(rootElement);
+      retVal = QByteArray(reinterpret_cast<const char*>(m_flatBufferBuilder.GetBufferPointer()), static_cast<int>(m_flatBufferBuilder.GetSize()));
+
+      m_flatBufferBuilder.Clear();
+
       return retVal;
     }
 
-    void sendNetworkEvent(QList<int> t_receivers, protobuf::VeinProtocol *t_data)
+    void sendNetworkEvent(QList<int> t_receivers, QByteArray t_data)
     {
-      Q_ASSERT(t_data != 0);
+      Q_ASSERT(t_data.isNull() == false);
 
       ProtocolEvent *protoEvent = new ProtocolEvent(true); //create a new event of local origin
-      protoEvent->setProtobuf(t_data);
+      protoEvent->setBuffer(t_data);
       protoEvent->setReceivers(t_receivers);
 
       emit q_ptr->sigSendEvent(protoEvent);
@@ -237,6 +264,8 @@ namespace VeinNet
      * @brief stores current subscribers
      */
     SubscriptionStorage<int> m_subscriptions;
+
+    flatbuffers::FlatBufferBuilder m_flatBufferBuilder;
 
     NetworkSystem *q_ptr;
 
@@ -311,7 +340,7 @@ namespace VeinNet
           if(evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
-            protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
+            QByteArray flatBuffer = d_ptr->prepareEnvelope(cEvent);
             QList<int> protoReceivers;
 
             if(cEvent->peerId() >= 0)
@@ -319,7 +348,7 @@ namespace VeinNet
               protoReceivers = QList<int>() << cEvent->peerId();
             }
 
-            d_ptr->sendNetworkEvent(protoReceivers, protoEnvelope);
+            d_ptr->sendNetworkEvent(protoReceivers, flatBuffer);
 
 
             retVal = true;
@@ -359,9 +388,9 @@ namespace VeinNet
 
               if(protoReceivers.isEmpty() == false)
               {
-                protobuf::VeinProtocol *protoEnvelope = d_ptr->prepareEnvelope(cEvent);
+                QByteArray flatBuffer = d_ptr->prepareEnvelope(cEvent);
                 vCDebug(VEIN_NET_VERBOSE) << "Processing command event:" << cEvent << "type:" << static_cast<qint8>(cEvent->eventSubtype());// << "new event:" << protoEvent;
-                d_ptr->sendNetworkEvent(protoReceivers, protoEnvelope);
+                d_ptr->sendNetworkEvent(protoReceivers, flatBuffer);
                 retVal = true;
               }
             }

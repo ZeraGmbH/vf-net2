@@ -1,6 +1,5 @@
 #include "vn_protocolevent.h"
-
-#include <vfcore.pb.h>
+#include "ecs_schema_generated.h"
 
 namespace VeinNet
 {
@@ -11,26 +10,21 @@ namespace VeinNet
     this->setAccepted(false);
   }
 
-  ProtocolEvent::~ProtocolEvent()
-  {
-    delete m_protobuf;
-  }
-
   int ProtocolEvent::getEventType()
   {
     return s_eventType;
   }
 
-  protobuf::VeinProtocol *ProtocolEvent::protobuf() const
+  QByteArray ProtocolEvent::buffer() const
   {
-    return m_protobuf;
+    return m_flatBuffer;
   }
 
-  void ProtocolEvent::setProtobuf(protobuf::VeinProtocol *t_protobuf)
+  void ProtocolEvent::setBuffer(QByteArray t_buffer)
   {
-    Q_ASSERT(t_protobuf != 0);
+    Q_ASSERT(t_buffer.isEmpty() == false);
 
-    m_protobuf =t_protobuf;
+    m_flatBuffer = t_buffer;
   }
 
   QList<int> ProtocolEvent::receivers() const

@@ -1,0 +1,35 @@
+namespace VeinFrameworkIDL;
+
+/// @b Authentication request
+table HandshakeRequest {
+    username:string;
+    /// @b The salted password as hash written by QDatastream in a QByteArray
+    data:[byte];
+}
+
+/// @b Authentication answer
+table HandshakeAnswer {
+    result:int;
+    /// @b The server generated auth token written by QDatastream in a QByteArray
+    data:[byte];
+}
+
+union Handshake { HandshakeRequest, HandshakeAnswer }
+
+enum EventCommand : int {
+    VC_TRANSACTION = 0,
+    VC_NOTIFICATION = 1
+}
+
+table ECSEvent {
+     command:EventCommand;
+     dataType:int;
+     eventData:[byte];
+}
+
+table ECSEnvelope {
+    handshake:Handshake;
+    ecsEvents:[ECSEvent];
+}
+
+root_type ECSEnvelope;

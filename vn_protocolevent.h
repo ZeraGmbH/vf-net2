@@ -4,11 +4,6 @@
 #include "veinnet_global.h"
 #include <QEvent>
 
-namespace protobuf
-{
-  class VeinProtocol;
-}
-
 namespace VeinNet
 {
   /**
@@ -19,8 +14,6 @@ namespace VeinNet
   public:
     explicit ProtocolEvent(const bool &t_fromLocalOrigin);
 
-    ~ProtocolEvent();
-
     /**
      * @brief On the first call this randomly assigns a QEvent::Type for this class
      * @return
@@ -28,8 +21,8 @@ namespace VeinNet
     static int getEventType();
 
 
-    protobuf::VeinProtocol *protobuf() const;
-    void setProtobuf(protobuf::VeinProtocol *t_protobuf);
+    QByteArray buffer() const;
+    void setBuffer(QByteArray t_buffer);
 
     QList<int> receivers() const;
     void setReceivers(const QList<int> &t_receivers);
@@ -50,7 +43,7 @@ namespace VeinNet
      * @brief stored protobuf data
      * @note will be deleted in event destructor
      */
-    protobuf::VeinProtocol *m_protobuf = 0;
+    QByteArray m_flatBuffer = 0;
 
     /**
      * @brief in case of unicast or multicast (in contrast to broadcast) the receivers will be explicitly listed
