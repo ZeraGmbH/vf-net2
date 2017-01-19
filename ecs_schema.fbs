@@ -1,20 +1,19 @@
 namespace VeinFrameworkIDL;
 
-/// @b Authentication request
-table HandshakeRequest {
+/// @b Authentication response
+table ClientHandshake {
     username:string;
-    /// @b The salted password as hash written by QDatastream in a QByteArray
-    data:[byte];
+    /// @b The user password hash encrypted random number the client received from the server as challenge
+    response:long;
 }
 
-/// @b Authentication answer
-table HandshakeAnswer {
-    result:int;
-    /// @b The server generated auth token written by QDatastream in a QByteArray
-    data:[byte];
+/// @b Authentication challenge
+table ServerHandshake {
+    /// @b A unique pseudorandom number the server uses as a challenge
+    challenge:long;
 }
 
-union Handshake { HandshakeRequest, HandshakeAnswer }
+union Handshake { ClientHandshake, ServerHandshake }
 
 enum EventCommand : int {
     VC_TRANSACTION = 0,

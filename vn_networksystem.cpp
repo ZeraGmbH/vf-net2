@@ -174,7 +174,7 @@ namespace VeinNet
       vCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
       {
-        int tmpPeerId = t_sEvent->getPeerId();
+        const int tmpPeerId = t_sEvent->getPeerId();
         foreach(int tmpKey, m_subscriptions.keys())
         {
           QList<int> tmpSubscribers = m_subscriptions.value(tmpKey);
@@ -202,16 +202,16 @@ namespace VeinNet
     {
       Q_ASSERT(t_cEvent != 0);
 
-      VeinEvent::EventData * evData = 0;
       QByteArray retVal;
       QByteArray serializedEventData;
-
-      evData = t_cEvent->eventData();
+      const VeinEvent::EventData *evData = t_cEvent->eventData();
       Q_ASSERT(evData != 0);
 
 
+
+
       serializedEventData = evData->serialize();
-      auto dataVector = m_flatBufferBuilder.CreateVector<int8_t>(reinterpret_cast<const int8_t *>(serializedEventData.constData()), static_cast<size_t>(serializedEventData.size()));
+      const auto dataVector = m_flatBufferBuilder.CreateVector<int8_t>(reinterpret_cast<const int8_t *>(serializedEventData.constData()), static_cast<size_t>(serializedEventData.size()));
       auto ecsEventBuilder = VeinFrameworkIDL::ECSEventBuilder(m_flatBufferBuilder);
 
       switch(t_cEvent->eventSubtype())
