@@ -7,7 +7,7 @@
 namespace VeinNet
 {
   /**
-   * @brief Event containing protobuf::VeinProtocol data that is exchanged between VeinNet::NetworkSystem and the wire implementations (e.g. VeinNet::TcpSystem)
+   * @brief Event containing flatbuffer data that is exchanged between VeinNet::NetworkSystem and the wire implementations (e.g. VeinNet::TcpSystem)
    */
   class VEINNETSHARED_EXPORT ProtocolEvent : public QEvent
   {
@@ -40,7 +40,7 @@ namespace VeinNet
     const bool m_localOrigin;
 
     /**
-     * @brief stored protobuf data
+     * @brief stored flatbuffer data
      * @note will be deleted in event destructor
      */
     QByteArray m_flatBuffer = 0;
