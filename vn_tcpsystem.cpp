@@ -175,16 +175,17 @@ namespace VeinNet
         //send to all
         if(pEvent->receivers().isEmpty())
         {
-          QList<XiQNetPeer *> tmpPeerlist = m_peerList.values();
+          const auto tmpPeerlist = m_peerList.values();
           vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent << "to receivers:" << tmpPeerlist;// << pEvent->protobuf()->DebugString().c_str();
-          foreach(XiQNetPeer *tmpPeer, tmpPeerlist)
+          for(XiQNetPeer *tmpPeer : tmpPeerlist)
           {
             tmpPeer->sendMessage(pEvent->buffer());
           }
         }
         else //send to all explicit receivers
         {
-          foreach (int receiverId, pEvent->receivers())
+          const auto tmpEventReceiversCopy = pEvent->receivers();
+          for(const int receiverId : tmpEventReceiversCopy)
           {
             XiQNetPeer *tmpPeer = m_peerList.value(receiverId,0);
             if(tmpPeer)

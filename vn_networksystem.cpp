@@ -175,7 +175,8 @@ namespace VeinNet
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
       {
         const int tmpPeerId = t_sEvent->getPeerId();
-        foreach(int tmpKey, m_subscriptions.keys())
+        const auto tmpSubscriptionKeysCopy = m_subscriptions.keys();
+        for(const int tmpKey : tmpSubscriptionKeysCopy)
         {
           QList<int> tmpSubscribers = m_subscriptions.value(tmpKey);
           if(tmpSubscribers.contains(tmpPeerId))
