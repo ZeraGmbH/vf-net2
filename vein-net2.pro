@@ -6,20 +6,17 @@
 
 TEMPLATE = lib
 
-#Generate FlatBuffer headers
+
+OTHER_FILES += ecs_schema.fbs
 contains(DEFINES, BUILD_DEV_SST) {
   INCLUDEPATH += /work/downloads/git-clones/flatbuffers/include/
   FBUF_COMPILER = /work/downloads/git-clones/flatbuffers/flatc
 }
-contains(DEFINES, OE_BINDIR_NATIVE) {
-  FBUF_COMPILER = $$OE_BINDIR_NATIVE/flatc
-}
 
+#generate flatbuffers headers
 !defined(FBUF_COMPILER, var) {
   FBUF_COMPILER = flatc
 }
-
-OTHER_FILES += ecs_schema.fbs
 
 FBUF_SRCDIR=$$_PRO_FILE_PWD_
 FBUF_IDL= $$FBUF_SRCDIR/ecs_schema.fbs
