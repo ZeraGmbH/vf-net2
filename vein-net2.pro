@@ -9,7 +9,7 @@ TEMPLATE = lib
 
 OTHER_FILES += ecs_schema.fbs
 contains(DEFINES, BUILD_DEV_SST) {
-  INCLUDEPATH += /work/downloads/git-clones/flatbuffers/include/
+  QMAKE_CXXFLAGS += -isystem /work/downloads/git-clones/flatbuffers/include/
   FBUF_COMPILER = /work/downloads/git-clones/flatbuffers/flatc
 }
 
