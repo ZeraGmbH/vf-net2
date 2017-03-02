@@ -3,9 +3,9 @@
 
 namespace VeinNet
 {
-  ProtocolEvent::ProtocolEvent(const bool &t_fromLocalOrigin) :
+  ProtocolEvent::ProtocolEvent(EventOrigin t_fromLocalOrigin):
     QEvent(static_cast<QEvent::Type>(getEventType())),
-    m_localOrigin(t_fromLocalOrigin)
+    m_localOrigin(static_cast<bool>(t_fromLocalOrigin))
   {
     this->setAccepted(false);
   }

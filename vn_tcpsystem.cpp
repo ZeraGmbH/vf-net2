@@ -135,7 +135,7 @@ namespace VeinNet
       m_waitingAuth.removeAll(tmpPPeer);
       emit sigConnnectionEstablished(newId);
     }
-    ProtocolEvent *tmpEvent = new ProtocolEvent(false);
+    ProtocolEvent *tmpEvent = new ProtocolEvent(ProtocolEvent::EventOrigin::EO_REMOTE);
     tmpEvent->setBuffer(t_buffer);
     tmpEvent->setPeerId(tmpPPeer->getPeerId());
 #ifdef VN2_LEGACY_UNREACHABLE

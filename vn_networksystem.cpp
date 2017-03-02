@@ -33,7 +33,8 @@ namespace VeinNet
     explicit NetworkSystemPrivate(NetworkSystem *t_qPtr) :
       q_ptr(t_qPtr)
     {
-
+      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::NOTIFICATION) == static_cast<int>(VeinFrameworkIDL::EventCommand_VC_NOTIFICATION), "Enum compatibility is a requirement");
+      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::TRANSACTION) == static_cast<int>(VeinFrameworkIDL::EventCommand_VC_TRANSACTION), "Enum compatibility is a requirement");
     }
 
     void processProtoEvent(ProtocolEvent *t_pEvent)
@@ -99,24 +100,8 @@ namespace VeinNet
             if(evData->isValid())
             {
               evData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_FOREIGN);
-              switch(entityEvent->command())
-              {
-                case VeinFrameworkIDL::EventCommand_VC_NOTIFICATION:
-                {
-                  tmpEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, evData);
-                  break;
-                }
-                case VeinFrameworkIDL::EventCommand_VC_TRANSACTION:
-                {
-                  tmpEvent = new CommandEvent(CommandEvent::EventSubtype::TRANSACTION, evData);
-                  break;
-                }
-                default:
-                {
-                  break;
-                }
-              }
-              Q_ASSERT(tmpEvent != 0);
+
+              tmpEvent = new CommandEvent(static_cast<CommandEvent::EventSubtype>(entityEvent->command()), evData); //enums are compatible
 
               tmpEvent->setPeerId(t_pEvent->peerId());
               vCDebug(VEIN_NET_VERBOSE) << "Processing ProtocolEvent:" << t_pEvent << "new event:" << tmpEvent;
@@ -204,42 +189,23 @@ namespace VeinNet
       Q_ASSERT(t_cEvent != 0);
 
       QByteArray retVal;
-      QByteArray serializedEventData;
       const VeinEvent::EventData *evData = t_cEvent->eventData();
       Q_ASSERT(evData != 0);
+      const QByteArray serializedEventData = evData->serialize();
+      const auto dataString = m_flatBufferBuilder.CreateString(serializedEventData.constData(), serializedEventData.size());
 
-
-
-
-      serializedEventData = evData->serialize();
-      const auto dataVector = m_flatBufferBuilder.CreateVector<int8_t>(reinterpret_cast<const int8_t *>(serializedEventData.constData()), static_cast<size_t>(serializedEventData.size()));
-      auto ecsEventBuilder = VeinFrameworkIDL::ECSEventBuilder(m_flatBufferBuilder);
-
-      switch(t_cEvent->eventSubtype())
-      {
-        case CommandEvent::EventSubtype::NOTIFICATION:
-        {
-          ecsEventBuilder.add_command(VeinFrameworkIDL::EventCommand_VC_NOTIFICATION);
-          break;
-        }
-        case CommandEvent::EventSubtype::TRANSACTION:
-        {
-          ecsEventBuilder.add_command(VeinFrameworkIDL::EventCommand_VC_TRANSACTION);
-          break;
-        }
-      }
+      VeinFrameworkIDL::ECSEventBuilder ecsEventBuilder = VeinFrameworkIDL::ECSEventBuilder(m_flatBufferBuilder);
+      ecsEventBuilder.add_command(static_cast<VeinFrameworkIDL::EventCommand>(t_cEvent->eventSubtype())); //enums are compatible
 
       ecsEventBuilder.add_dataType(evData->type());
-      ecsEventBuilder.add_eventData(dataVector);
+      ecsEventBuilder.add_eventData(dataString);
 
-      flatbuffers::Offset<VeinFrameworkIDL::ECSEvent> ecsEvent = ecsEventBuilder.Finish();
-      std::vector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>> tmpEventVector;
-      tmpEventVector.push_back(ecsEvent);
+      const std::vector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>> tmpEventVector = {ecsEventBuilder.Finish()};
+      const auto eventVector = m_flatBufferBuilder.CreateVector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>>(tmpEventVector);
 
-      auto eventVector = m_flatBufferBuilder.CreateVector<flatbuffers::Offset<VeinFrameworkIDL::ECSEvent>>(tmpEventVector);
       VeinFrameworkIDL::ECSEnvelopeBuilder ecsEnvelopeBuilder = VeinFrameworkIDL::ECSEnvelopeBuilder(m_flatBufferBuilder);
       ecsEnvelopeBuilder.add_ecsEvents(eventVector);
-      auto rootElement = ecsEnvelopeBuilder.Finish();
+      const auto rootElement = ecsEnvelopeBuilder.Finish();
       m_flatBufferBuilder.Finish(rootElement);
       retVal = QByteArray(reinterpret_cast<const char*>(m_flatBufferBuilder.GetBufferPointer()), static_cast<int>(m_flatBufferBuilder.GetSize()));
 
@@ -252,7 +218,7 @@ namespace VeinNet
     {
       Q_ASSERT(t_data.isNull() == false);
 
-      ProtocolEvent *protoEvent = new ProtocolEvent(true); //create a new event of local origin
+      ProtocolEvent *protoEvent = new ProtocolEvent(ProtocolEvent::EventOrigin::EO_LOCAL); //create a new event of local origin
       protoEvent->setBuffer(t_data);
       protoEvent->setReceivers(t_receivers);
 

@@ -12,7 +12,13 @@ namespace VeinNet
   class VEINNETSHARED_EXPORT ProtocolEvent : public QEvent
   {
   public:
-    explicit ProtocolEvent(const bool &t_fromLocalOrigin);
+    enum class EventOrigin : bool {
+      EO_REMOTE = false,
+      EO_LOCAL = true
+    };
+
+    explicit ProtocolEvent(EventOrigin t_eventOrigin);
+
 
     /**
      * @brief On the first call this randomly assigns a QEvent::Type for this class

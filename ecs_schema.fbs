@@ -16,14 +16,14 @@ table ServerHandshake {
 union Handshake { ClientHandshake, ServerHandshake }
 
 enum EventCommand : int {
-    VC_TRANSACTION = 0,
-    VC_NOTIFICATION = 1
+    VC_NOTIFICATION = 0,
+    VC_TRANSACTION = 1
 }
 
 table ECSEvent {
      command:EventCommand;
      dataType:int;
-     eventData:[byte];
+     eventData:string;
 }
 
 table ECSEnvelope {
