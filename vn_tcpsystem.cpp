@@ -33,7 +33,7 @@ namespace VeinNet
     m_server->startServer(t_port);
   }
 
-  void TcpSystem::connectToServer(QString t_host, quint16 t_port)
+  void TcpSystem::connectToServer(const QString &t_host, quint16 t_port)
   {
     VF_ASSERT(t_host.isEmpty() == false, "Empty host");
     VF_ASSERT(t_port > 0, "Port must be > 0");

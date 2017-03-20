@@ -55,7 +55,7 @@ namespace VeinNet
      * @note the QHostAddress::Any may have issues with ipv4 vs ipv6, but aparently they only affect udp connections so far
      */
     void startServer(quint16 t_port);
-    void connectToServer(QString t_host, quint16 t_port);
+    void connectToServer(const QString &t_host, quint16 t_port);
 
     /**
      * @brief adds the client to the waiting auth list and sends auth message
