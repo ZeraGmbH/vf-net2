@@ -1,33 +1,17 @@
 namespace VeinFrameworkIDL;
 
-/// @b Authentication response
-table ClientHandshake {
-    username:string;
-    /// @b The user password hash encrypted random number the client received from the server as challenge
-    response:long;
-}
-
-/// @b Authentication challenge
-table ServerHandshake {
-    /// @b A unique pseudorandom number the server uses as a challenge
-    challenge:long;
-}
-
-union Handshake { ClientHandshake, ServerHandshake }
-
-enum EventCommand : int {
+enum EventSubtype : int {
     VC_NOTIFICATION = 0,
     VC_TRANSACTION = 1
 }
 
 table ECSEvent {
-     command:EventCommand;
+     command:EventSubtype;
      dataType:int;
      eventData:string;
 }
 
 table ECSEnvelope {
-    handshake:Handshake;
     ecsEvents:[ECSEvent];
 }
 

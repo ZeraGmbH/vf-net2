@@ -24,8 +24,6 @@ namespace google
 
 namespace VeinNet
 {
-  class ProtocolWrapper;
-
   /**
    * @brief TCP wire protocol implementation for protobuf::VeinProtocol data
    *

@@ -33,8 +33,8 @@ namespace VeinNet
     explicit NetworkSystemPrivate(NetworkSystem *t_qPtr) :
       q_ptr(t_qPtr)
     {
-      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::NOTIFICATION) == static_cast<int>(VeinFrameworkIDL::EventCommand_VC_NOTIFICATION), "Enum compatibility is a requirement");
-      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::TRANSACTION) == static_cast<int>(VeinFrameworkIDL::EventCommand_VC_TRANSACTION), "Enum compatibility is a requirement");
+      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::NOTIFICATION) == static_cast<int>(VeinFrameworkIDL::EventSubtype_VC_NOTIFICATION), "Enum compatibility is a requirement");
+      VF_ASSERT(static_cast<int>(CommandEvent::EventSubtype::TRANSACTION) == static_cast<int>(VeinFrameworkIDL::EventSubtype_VC_TRANSACTION), "Enum compatibility is a requirement");
     }
 
     void processProtoEvent(ProtocolEvent *t_pEvent)
@@ -124,7 +124,7 @@ namespace VeinNet
       bool retVal = false;
       switch(t_eData->eventCommand())
       {
-        case VeinComponent::EntityData::ECMD_SUBSCRIBE:
+        case EntityData::Command::ECMD_SUBSCRIBE:
         {
           QList<int> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
           if(tmpCurrentSubscriptions.contains(t_peerId) == false)
@@ -133,16 +133,16 @@ namespace VeinNet
           }
           m_subscriptions.insert(t_eData->entityId(), tmpCurrentSubscriptions);
 
-          vCDebug(VEIN_NET) << "Added subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
+          vCDebug(VEIN_NET_VERBOSE) << "Added subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
           retVal = true;
           break;
         }
-        case VeinComponent::EntityData::ECMD_UNSUBSCRIBE:
+        case EntityData::Command::ECMD_UNSUBSCRIBE:
         {
           QList<int> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
           tmpCurrentSubscriptions.removeAll(t_peerId);
           m_subscriptions.insert(t_eData->entityId(), tmpCurrentSubscriptions);
-          vCDebug(VEIN_NET) << "Removed subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
+          vCDebug(VEIN_NET_VERBOSE) << "Removed subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
           retVal = true;
           break;
         }
@@ -168,7 +168,7 @@ namespace VeinNet
           {
             tmpSubscribers.removeAll(tmpPeerId);
             m_subscriptions.insert(tmpKey, tmpSubscribers);
-            vCDebug(VEIN_NET) << "Removed subscription for entity:" << tmpKey << "for disconnected network peer:" << tmpPeerId;
+            vCDebug(VEIN_NET_VERBOSE) << "Removed subscription for entity:" << tmpKey << "for disconnected network peer:" << tmpPeerId;
           }
         }
       }
@@ -195,7 +195,7 @@ namespace VeinNet
       const auto dataString = m_flatBufferBuilder.CreateString(serializedEventData.constData(), serializedEventData.size());
 
       VeinFrameworkIDL::ECSEventBuilder ecsEventBuilder = VeinFrameworkIDL::ECSEventBuilder(m_flatBufferBuilder);
-      ecsEventBuilder.add_command(static_cast<VeinFrameworkIDL::EventCommand>(t_cEvent->eventSubtype())); //enums are compatible
+      ecsEventBuilder.add_command(static_cast<VeinFrameworkIDL::EventSubtype>(t_cEvent->eventSubtype())); //enums are compatible
 
       ecsEventBuilder.add_dataType(evData->type());
       ecsEventBuilder.add_eventData(dataString);

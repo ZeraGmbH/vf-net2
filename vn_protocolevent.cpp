@@ -1,5 +1,4 @@
 #include "vn_protocolevent.h"
-#include "ecs_schema_generated.h"
 
 namespace VeinNet
 {

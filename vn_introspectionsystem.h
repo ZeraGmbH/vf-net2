@@ -23,9 +23,9 @@ namespace VeinNet
 
   public:
     explicit IntrospectionSystem(VeinEvent::StorageSystem *t_storage, QObject *t_parent=0);
+    static constexpr QLatin1String s_nameComponent = QLatin1String("EntityName");
 
     VeinEvent::StorageSystem *storage() const;
-    static const QString NAME_COMPONENT;
 
     // EventSystem interface
   public:

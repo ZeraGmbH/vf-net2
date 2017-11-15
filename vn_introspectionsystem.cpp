@@ -25,13 +25,13 @@ namespace VeinNet
   {
     Q_ASSERT(m_storage != 0);
   }
+  constexpr QLatin1String IntrospectionSystem::s_nameComponent;
 
   StorageSystem *IntrospectionSystem::storage() const
   {
     return m_storage;
   }
 
-  const QString IntrospectionSystem::NAME_COMPONENT="EntityName";
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
@@ -56,7 +56,7 @@ namespace VeinNet
           eData = static_cast<EntityData *>(evData);
           Q_ASSERT(eData != 0);
 
-          if(eData->eventCommand() == VeinComponent::EntityData::ECMD_SUBSCRIBE)
+          if(eData->eventCommand() == EntityData::Command::ECMD_SUBSCRIBE)
           {
             vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
             IntrospectionData *newData=0;

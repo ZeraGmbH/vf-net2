@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 #experimental code
-VF_NO_DEPLOY = 1
+VF_NO_DEPLOY_HEADERS = 1
 
 TEMPLATE = lib
 

@@ -47,9 +47,8 @@ namespace VeinNet
 
     /**
      * @brief stored flatbuffer data
-     * @note will be deleted in event destructor
      */
-    QByteArray m_flatBuffer = 0;
+    QByteArray m_flatBuffer;
 
     /**
      * @brief in case of unicast or multicast (in contrast to broadcast) the receivers will be explicitly listed
