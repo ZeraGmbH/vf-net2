@@ -4,6 +4,7 @@
 #include <ve_eventsystem.h>
 #include "veinnet_global.h"
 
+#include <QHash>
 #include <QJsonObject>
 
 namespace VeinEvent
@@ -14,6 +15,7 @@ namespace VeinEvent
 
 namespace VeinNet
 {
+  struct EntityIntrospection;
   /**
    * @brief Collates VeinStorage data structure informations into VeinComponent::IntrospectionData for remote introspection
    */
@@ -22,7 +24,7 @@ namespace VeinNet
     Q_OBJECT
 
   public:
-    explicit IntrospectionSystem(VeinEvent::StorageSystem *t_storage, QObject *t_parent=0);
+    explicit IntrospectionSystem(QObject *t_parent=0);
     static constexpr QLatin1String s_nameComponent = QLatin1String("EntityName");
 
     VeinEvent::StorageSystem *storage() const;
@@ -40,11 +42,7 @@ namespace VeinNet
      */
     QJsonObject getJsonIntrospection(int t_entityId) const;
 
-    /**
-     * @brief The storage determines what entities this system will handle
-     * There may be some entities, eg. datatabase synchronized stuff, which should not be introspectable (eg. due to requirements dictated by cross cutting concerns)
-     */
-    VeinEvent::StorageSystem *m_storage = 0;
+    QHash<int, EntityIntrospection*> m_introspectionData;
   };
 } // namespace VeinNet
 

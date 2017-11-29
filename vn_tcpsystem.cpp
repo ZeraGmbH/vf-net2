@@ -3,8 +3,8 @@
 #include "vn_protocolevent.h"
 #include "vn_networkstatusevent.h"
 
-#include <xiqnetpeer.h>
-#include <xiqnetserver.h>
+#include <vtcp_peer.h>
+#include <vtcp_server.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET_TCP, "\e[1;33m<Vein.Network.Tcp>\033[0m")
 Q_LOGGING_CATEGORY(VEIN_NET_TCP_VERBOSE, "\e[0;33m<Vein.Network.Tcp>\033[0m")
@@ -15,10 +15,10 @@ namespace VeinNet
 {
   TcpSystem::TcpSystem(QObject *t_parent) :
     EventSystem(t_parent) ,
-    m_server(new XiQNetServer(this))
+    m_server(new VeinTcp::TcpServer(this))
   {
     vCDebug(VEIN_NET_TCP)  << "Created TCP system";
-    connect(m_server, &XiQNetServer::sigClientConnected, this, &TcpSystem::onClientConnected);
+    connect(m_server, &VeinTcp::TcpServer::sigClientConnected, this, &TcpSystem::onClientConnected);
   }
 
   TcpSystem::~TcpSystem()
@@ -40,21 +40,21 @@ namespace VeinNet
 
     vCDebug(VEIN_NET_TCP) << "Attempting connection to:"<< t_host << "on port:" << t_port;
 
-    XiQNetPeer *tmpPeer = new XiQNetPeer(this);
+    VeinTcp::TcpPeer *tmpPeer = new VeinTcp::TcpPeer(this);
     connect(tmpPeer, SIGNAL(sigSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
-    connect(tmpPeer, &XiQNetPeer::sigConnectionEstablished, this, &TcpSystem::onConnectionEstablished);
-    connect(tmpPeer, &XiQNetPeer::sigConnectionClosed, this, &TcpSystem::onConnectionClosed);
+    connect(tmpPeer, &VeinTcp::TcpPeer::sigConnectionEstablished, this, &TcpSystem::onConnectionEstablished);
+    connect(tmpPeer, &VeinTcp::TcpPeer::sigConnectionClosed, this, &TcpSystem::onConnectionClosed);
     tmpPeer->startConnection(t_host, t_port);
   }
 
-  void TcpSystem::onClientConnected(XiQNetPeer *t_networkPeer)
+  void TcpSystem::onClientConnected(VeinTcp::TcpPeer *t_networkPeer)
   {
     Q_ASSERT(t_networkPeer != 0);
 
-    connect(t_networkPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
+    connect(t_networkPeer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
     m_waitingAuth.append(t_networkPeer);
 
-    connect(t_networkPeer, &XiQNetPeer::sigConnectionClosed, this, &TcpSystem::onClientDisconnected);
+    connect(t_networkPeer, &VeinTcp::TcpPeer::sigConnectionClosed, this, &TcpSystem::onClientDisconnected);
 
     t_networkPeer->sendMessage(QByteArray("welcome"));
 #ifdef VN2_LEGACY_UNREACHABLE
@@ -69,12 +69,12 @@ namespace VeinNet
   {
     /// @todo requiring QObject::sender() is bad design
     Q_ASSERT(QObject::sender()!=0);
-    XiQNetPeer *tmpPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    VeinTcp::TcpPeer *tmpPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPeer != 0);
 
     m_waitingAuth.append(tmpPeer);
 
-    connect(tmpPeer, &XiQNetPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
+    connect(tmpPeer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
 
     tmpPeer->sendMessage(QByteArray("hello"));
 #ifdef VN2_LEGACY_UNREACHABLE
@@ -89,7 +89,7 @@ namespace VeinNet
   {
     /// @todo requiring QObject::sender() is bad design
     Q_ASSERT(QObject::sender()!=0);
-    XiQNetPeer *tmpPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    VeinTcp::TcpPeer *tmpPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPeer != 0);
 
     int tmpPeerId = tmpPeer->getPeerId();
@@ -103,7 +103,7 @@ namespace VeinNet
   {
     /// @todo requiring QObject::sender() is bad design
     Q_ASSERT(QObject::sender()!=0);
-    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
     int tmpPeerId = tmpPPeer->getPeerId();
@@ -122,7 +122,7 @@ namespace VeinNet
   {
     Q_ASSERT(t_buffer.isNull() == false);
 
-    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
     //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
@@ -149,7 +149,7 @@ namespace VeinNet
 
   void TcpSystem::onSocketError(QAbstractSocket::SocketError t_socketError)
   {
-    XiQNetPeer *tmpPPeer = qobject_cast<XiQNetPeer *>(QObject::sender());
+    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
     NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, tmpPPeer->getPeerId());
@@ -177,7 +177,7 @@ namespace VeinNet
         {
           const auto tmpPeerlist = m_peerList.values();
           vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent << "to receivers:" << tmpPeerlist;// << pEvent->protobuf()->DebugString().c_str();
-          for(XiQNetPeer *tmpPeer : tmpPeerlist)
+          for(VeinTcp::TcpPeer *tmpPeer : tmpPeerlist)
           {
             tmpPeer->sendMessage(pEvent->buffer());
           }
@@ -187,7 +187,7 @@ namespace VeinNet
           const auto tmpEventReceiversCopy = pEvent->receivers();
           for(const int receiverId : tmpEventReceiversCopy)
           {
-            XiQNetPeer *tmpPeer = m_peerList.value(receiverId,0);
+            VeinTcp::TcpPeer *tmpPeer = m_peerList.value(receiverId,0);
             if(tmpPeer)
             {
               vCDebug(VEIN_NET_TCP_VERBOSE) << "Sending ProtocolEvent" << pEvent << "to receiver:" << tmpPeer;// << pEvent->protobuf()->DebugString().c_str();

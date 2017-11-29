@@ -9,6 +9,7 @@
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vcmp_introspectiondata.h>
+#include <vcmp_remoteproceduredata.h>
 #include <ve_commandevent.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET, "\e[1;32m<Vein.Network>\033[0m")
@@ -89,6 +90,14 @@ namespace VeinNet
               case VeinComponent::IntrospectionData::dataType():
               {
                 VeinComponent::IntrospectionData *tmpData = new VeinComponent::IntrospectionData();
+                tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
+
+                evData = tmpData;
+                break;
+              }
+              case VeinComponent::RemoteProcedureData::dataType():
+              {
+                VeinComponent::RemoteProcedureData *tmpData = new VeinComponent::RemoteProcedureData();
                 tmpData->deserialize(QByteArray(eventDataArray, eventDataArraySize));
 
                 evData = tmpData;

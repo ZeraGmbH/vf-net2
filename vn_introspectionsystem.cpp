@@ -4,11 +4,11 @@
 #include <QJsonArray>
 
 #include <ve_commandevent.h>
-#include <ve_storagesystem.h>
 
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_introspectiondata.h>
+#include <vcmp_remoteproceduredata.h>
 #include <vcmp_errordata.h>
 
 Q_LOGGING_CATEGORY(VEIN_NET_INTRO, "\e[1;35m<Vein.Network.Introspection>\033[0m")
@@ -19,19 +19,25 @@ using namespace VeinComponent;
 
 namespace VeinNet
 {
-  IntrospectionSystem::IntrospectionSystem(VeinEvent::StorageSystem *t_storage, QObject *t_parent) :
-    VeinEvent::EventSystem(t_parent),
-    m_storage(t_storage)
+  struct EntityIntrospection
   {
-    Q_ASSERT(m_storage != 0);
+  public:
+    QSet<QString> m_components;
+    QSet<QString> m_procedures;
+  };
+
+  IntrospectionSystem::IntrospectionSystem(QObject *t_parent) :
+    VeinEvent::EventSystem(t_parent)
+  {
+    const auto listToClean = m_introspectionData.values();
+    for(EntityIntrospection *toDelete : qAsConst(listToClean))
+    {
+      delete toDelete;
+    }
+    m_introspectionData.clear();
   }
+
   constexpr QLatin1String IntrospectionSystem::s_nameComponent;
-
-  StorageSystem *IntrospectionSystem::storage() const
-  {
-    return m_storage;
-  }
-
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
@@ -50,75 +56,114 @@ namespace VeinNet
 
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
-        if(evData->type() == EntityData::dataType())
+        switch(evData->type())
         {
-          EntityData *eData=0;
-          eData = static_cast<EntityData *>(evData);
-          Q_ASSERT(eData != 0);
-
-          if(eData->eventCommand() == EntityData::Command::ECMD_SUBSCRIBE)
+          case EntityData::dataType():
           {
-            vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
-            IntrospectionData *newData=0;
-            QJsonObject tmpObject;
+            EntityData *eData=0;
+            eData = static_cast<EntityData *>(evData);
+            Q_ASSERT(eData != 0);
 
-            tmpObject = getJsonIntrospection(eData->entityId());
-            if(tmpObject.isEmpty() == false)
+            switch(eData->eventCommand())
             {
-              newData = new IntrospectionData();
-              newData->setEntityId(eData->entityId());
-              newData->setJsonData(tmpObject);
-              newData->setEventOrigin(IntrospectionData::EventOrigin::EO_LOCAL);
-              newData->setEventTarget(IntrospectionData::EventTarget::ET_ALL);
+              case EntityData::Command::ECMD_ADD:
+              {
+                if(m_introspectionData.contains(eData->entityId()))
+                {
+                  //remove the old entry to prevent leaking
+                  delete m_introspectionData.value(eData->entityId());
+                }
+                m_introspectionData.insert(eData->entityId(), new EntityIntrospection());
+                break;
+              }
+              case EntityData::Command::ECMD_SUBSCRIBE:
+              {
+                vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
+                IntrospectionData *newData=0;
+                QJsonObject tmpObject;
 
-              CommandEvent *newEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, newData);
-              /// @note sets the peer id to be the sender peer id, used for unicasting the message
-              newEvent->setPeerId(cEvent->peerId());
+                tmpObject = getJsonIntrospection(eData->entityId());
+                if(tmpObject.isEmpty() == false)
+                {
+                  newData = new IntrospectionData();
+                  newData->setEntityId(eData->entityId());
+                  newData->setJsonData(tmpObject);
+                  newData->setEventOrigin(IntrospectionData::EventOrigin::EO_LOCAL);
+                  newData->setEventTarget(IntrospectionData::EventTarget::ET_ALL);
 
-              vCDebug(VEIN_NET_INTRO_VERBOSE) << "Sending introspection event:" << newEvent;
+                  CommandEvent *newEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, newData);
+                  /// @note sets the peer id to be the sender peer id, used for unicasting the message
+                  newEvent->setPeerId(cEvent->peerId());
 
-              emit sigSendEvent(newEvent);
+                  vCDebug(VEIN_NET_INTRO_VERBOSE) << "Sending introspection event:" << newEvent;
 
-              retVal = true;
+                  emit sigSendEvent(newEvent);
+
+                  retVal = true;
+                }
+                else
+                {
+                  QString tmpErrorString = tr("No introspection available for requested entity, entity id: %1").arg(eData->entityId());
+                  t_event->accept();
+                  qCWarning(VEIN_NET_INTRO) << tmpErrorString;
+
+
+                  ErrorData *errData = new ErrorData();
+
+                  errData->setEntityId(eData->entityId());
+                  errData->setOriginalData(eData);
+                  errData->setEventOrigin(EventData::EventOrigin::EO_LOCAL);
+                  errData->setEventTarget(eData->eventTarget());
+                  errData->setErrorDescription(tmpErrorString);
+
+                  CommandEvent *tmpCommandEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, errData);
+                  tmpCommandEvent->setPeerId(cEvent->peerId());
+                  emit sigSendEvent(tmpCommandEvent);
+                }
+                break;
+              }
+              default:
+                break;
             }
-            else
+            break;
+          }
+          case ComponentData::dataType():
+          {
+            ComponentData *cData = nullptr;
+            cData = static_cast<ComponentData *>(evData);
+            Q_ASSERT(cData != nullptr);
+            switch(cData->eventCommand())
             {
-              QString tmpErrorString = tr("No introspection available for requested entity, entity id: %1").arg(eData->entityId());
-              t_event->accept();
-              qCWarning(VEIN_NET_INTRO) << tmpErrorString;
-
-
-              ErrorData *errData = new ErrorData();
-
-              errData->setEntityId(eData->entityId());
-              errData->setOriginalData(eData);
-              errData->setEventOrigin(EventData::EventOrigin::EO_LOCAL);
-              errData->setEventTarget(eData->eventTarget());
-              errData->setErrorDescription(tmpErrorString);
-
-              CommandEvent *tmpCommandEvent = new CommandEvent(CommandEvent::EventSubtype::NOTIFICATION, errData);
-              tmpCommandEvent->setPeerId(cEvent->peerId());
-              emit sigSendEvent(tmpCommandEvent);
+              case ComponentData::Command::CCMD_ADD:
+              {
+                Q_ASSERT(m_introspectionData.contains(cData->entityId()));
+                m_introspectionData.value(cData->entityId())->m_components.insert(cData->componentName());
+                break;
+              }
+              case ComponentData::Command::CCMD_REMOVE:
+              {
+                Q_ASSERT(m_introspectionData.contains(cData->entityId()));
+                m_introspectionData.value(cData->entityId())->m_components.remove(cData->componentName());
+                break;
+              }
+              default:
+                break;
+            }
+            break;
+          }
+          case RemoteProcedureData::dataType():
+          {
+            RemoteProcedureData *rpcData = nullptr;
+            rpcData = static_cast<RemoteProcedureData *>(evData);
+            Q_ASSERT(rpcData != nullptr);
+            if(rpcData->command() == RemoteProcedureData::Command::RPCMD_REGISTER)
+            {
+              Q_ASSERT(m_introspectionData.contains(rpcData->entityId()));
+              m_introspectionData.value(rpcData->entityId())->m_procedures.insert(rpcData->procedureName());
             }
           }
-        }
-        else if(evData->type() == ComponentData::dataType())
-        {
-          ComponentData *cData=0;
-          cData = static_cast<ComponentData *>(evData);
-          Q_ASSERT(cData != 0);
-
-          if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_FETCH)
-          {
-            vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command CCMD_FETCH, entityId:" << cData->entityId() << "componentName:" << cData->componentName();
-
-            cData->setNewValue(m_storage->getStoredValue(cData->entityId(), cData->componentName()));
-            cData->setEventOrigin(ComponentData::EventOrigin::EO_LOCAL);
-            cData->setEventTarget(ComponentData::EventTarget::ET_ALL);
-            cEvent->setEventSubtype(CommandEvent::EventSubtype::NOTIFICATION);
-
-            retVal = true;
-          }
+          default:
+            break;
         }
       }
     }
@@ -130,13 +175,12 @@ namespace VeinNet
   {
     QJsonObject retVal;
 
-    if(m_storage->hasEntity(t_entityId))
+    if(m_introspectionData.contains(t_entityId))
     {
-      QStringList keyList = m_storage->getEntityComponents(t_entityId);
-      retVal.insert(QString("components"), QJsonArray::fromStringList(keyList));
+      retVal.insert(QString("components"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_components.toList()));
+      retVal.insert(QString("procedures"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_procedures.toList()));
     }
     return retVal;
   }
 
 } // namespace VeinNet
-

@@ -9,10 +9,11 @@
 #include <QAbstractSocket>
 
 
-
-
-class XiQNetPeer;
-class XiQNetServer;
+namespace VeinTcp
+{
+  class TcpPeer;
+  class TcpServer;
+}
 
 namespace google
 {
@@ -60,7 +61,7 @@ namespace VeinNet
      * @param t_networkPeer
      * @todo implement real authentication
      */
-    void onClientConnected(XiQNetPeer *t_networkPeer);
+    void onClientConnected(VeinTcp::TcpPeer *t_networkPeer);
 
     /**
      * @brief adds the server to the waiting auth list
@@ -102,17 +103,17 @@ namespace VeinNet
     /**
      * @brief List of clients waiting for approval
      */
-    QList<XiQNetPeer *> m_waitingAuth;
+    QList<VeinTcp::TcpPeer *> m_waitingAuth;
 
     /**
      * @brief List of active clients
      */
-    VeinHelper::HandleManager<int, XiQNetPeer *> m_peerList;
+    VeinHelper::HandleManager<int, VeinTcp::TcpPeer *> m_peerList;
 
     /**
      * @brief The server instance
      */
-    XiQNetServer *m_server = 0;
+    VeinTcp::TcpServer *m_server = 0;
   };
 }
 #endif // VN_TCPSYSTEM_H
