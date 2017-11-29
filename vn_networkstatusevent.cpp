@@ -8,7 +8,6 @@ namespace VeinNet
     m_socketError(),
     m_peerId(t_peerId)
   {
-    Q_ASSERT(t_peerId.isNull() == false);
     this->setAccepted(false);
   }
 
