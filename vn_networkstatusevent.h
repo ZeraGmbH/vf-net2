@@ -2,6 +2,7 @@
 #define VEINNET_NETWORKSTATUSEVENT_H
 
 #include <QEvent>
+#include <QUuid>
 #include "veinnet_global.h"
 
 #include <QAbstractSocket>
@@ -23,7 +24,7 @@ namespace VeinNet
 
 
 
-    NetworkStatusEvent(NetworkStatus t_status, int t_peerId);
+    NetworkStatusEvent(NetworkStatus t_status, QUuid t_peerId);
 
     /**
      * @brief On the first call this randomly assigns a QEvent::Type for this class
@@ -36,7 +37,7 @@ namespace VeinNet
     void setError(QAbstractSocket::SocketError t_socketError);
     QAbstractSocket::SocketError getError() const;
 
-    int getPeerId() const;
+    QUuid getPeerId() const;
 
   private:
     /**
@@ -57,7 +58,7 @@ namespace VeinNet
     /**
      * @brief the socket identifier of the network peer
      */
-    int m_peerId = -1;
+    QUuid m_peerId;
   };
 
 } // namespace VeinNet

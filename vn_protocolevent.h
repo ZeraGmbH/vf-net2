@@ -3,6 +3,7 @@
 
 #include "veinnet_global.h"
 #include <QEvent>
+#include <QUuid>
 
 namespace VeinNet
 {
@@ -30,13 +31,13 @@ namespace VeinNet
     QByteArray buffer() const;
     void setBuffer(QByteArray t_buffer);
 
-    QList<int> receivers() const;
-    void setReceivers(const QList<int> &t_receivers);
+    QList<QUuid> receivers() const;
+    void setReceivers(const QList<QUuid> &t_receivers);
 
     bool isOfLocalOrigin() const;
 
-    int peerId() const;
-    void setPeerId(int t_peerId);
+    QUuid peerId() const;
+    void setPeerId(QUuid t_peerId);
 
   private:
     /**
@@ -53,7 +54,7 @@ namespace VeinNet
     /**
      * @brief in case of unicast or multicast (in contrast to broadcast) the receivers will be explicitly listed
      */
-    QList<int> m_receivers;
+    QList<QUuid> m_receivers;
 
     /**
      * @brief 'Randomly' assigned static event type (QEvent::Type)
@@ -63,7 +64,7 @@ namespace VeinNet
     /**
      * @brief for remote events this is the unique network id
      */
-    int m_peerId = -1;
+    QUuid m_peerId;
   };
 }
 

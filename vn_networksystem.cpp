@@ -12,6 +12,8 @@
 #include <vcmp_remoteproceduredata.h>
 #include <ve_commandevent.h>
 
+#include <QUuid>
+
 Q_LOGGING_CATEGORY(VEIN_NET, "\e[1;32m<Vein.Network>\033[0m")
 Q_LOGGING_CATEGORY(VEIN_NET_VERBOSE, "\e[0;32m<Vein.Network>\033[0m")
 
@@ -28,7 +30,7 @@ namespace VeinNet
 
     // stands for QHash<"entity descriptor", QList<"network id"> *>
     template <typename T>
-    using SubscriptionStorage = QHash<T, QList<int>>;
+    using SubscriptionStorage = QHash<T, QList<QUuid>>;
 
 
     explicit NetworkSystemPrivate(NetworkSystem *t_qPtr) :
@@ -126,7 +128,7 @@ namespace VeinNet
     }
 
 
-    bool handleSubscription(VeinComponent::EntityData *t_eData, int t_peerId)
+    bool handleSubscription(VeinComponent::EntityData *t_eData, QUuid t_peerId)
     {
       Q_ASSERT(t_eData != 0);
 
@@ -135,7 +137,7 @@ namespace VeinNet
       {
         case EntityData::Command::ECMD_SUBSCRIBE:
         {
-          QList<int> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
+          QList<QUuid> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
           if(tmpCurrentSubscriptions.contains(t_peerId) == false)
           {
             tmpCurrentSubscriptions.append(t_peerId);
@@ -148,7 +150,7 @@ namespace VeinNet
         }
         case EntityData::Command::ECMD_UNSUBSCRIBE:
         {
-          QList<int> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
+          QList<QUuid> tmpCurrentSubscriptions = m_subscriptions.value(t_eData->entityId());
           tmpCurrentSubscriptions.removeAll(t_peerId);
           m_subscriptions.insert(t_eData->entityId(), tmpCurrentSubscriptions);
           vCDebug(VEIN_NET_VERBOSE) << "Removed subscription for entity:" << t_eData->entityId() << "network peer:" << t_peerId;
@@ -168,11 +170,11 @@ namespace VeinNet
       vCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
       {
-        const int tmpPeerId = t_sEvent->getPeerId();
+        const QUuid tmpPeerId = t_sEvent->getPeerId();
         const auto tmpSubscriptionKeysCopy = m_subscriptions.keys();
         for(const int tmpKey : tmpSubscriptionKeysCopy)
         {
-          QList<int> tmpSubscribers = m_subscriptions.value(tmpKey);
+          QList<QUuid> tmpSubscribers = m_subscriptions.value(tmpKey);
           if(tmpSubscribers.contains(tmpPeerId))
           {
             tmpSubscribers.removeAll(tmpPeerId);
@@ -223,7 +225,7 @@ namespace VeinNet
       return retVal;
     }
 
-    void sendNetworkEvent(QList<int> t_receivers, QByteArray t_data)
+    void sendNetworkEvent(QList<QUuid> t_receivers, QByteArray t_data)
     {
       Q_ASSERT(t_data.isNull() == false);
 
@@ -317,11 +319,11 @@ namespace VeinNet
              && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
           {
             QByteArray flatBuffer = d_ptr->prepareEnvelope(cEvent);
-            QList<int> protoReceivers;
+            QList<QUuid> protoReceivers;
 
-            if(cEvent->peerId() >= 0)
+            if(cEvent->peerId().isNull() == false)
             {
-              protoReceivers = QList<int>() << cEvent->peerId();
+              protoReceivers = QList<QUuid>() << cEvent->peerId();
             }
 
             d_ptr->sendNetworkEvent(protoReceivers, flatBuffer);
@@ -360,7 +362,7 @@ namespace VeinNet
             }
             else if(d_ptr->m_subscriptions.contains(evData->entityId()))
             {
-              QList<int> protoReceivers=d_ptr->m_subscriptions.value(evData->entityId());
+              QList<QUuid> protoReceivers=d_ptr->m_subscriptions.value(evData->entityId());
 
               if(protoReceivers.isEmpty() == false)
               {

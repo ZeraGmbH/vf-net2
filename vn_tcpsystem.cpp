@@ -92,7 +92,7 @@ namespace VeinNet
     VeinTcp::TcpPeer *tmpPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPeer != 0);
 
-    int tmpPeerId = tmpPeer->getPeerId();
+    QUuid tmpPeerId = tmpPeer->getPeerId();
 
     vCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
     m_waitingAuth.removeAll(tmpPeer);
@@ -106,7 +106,7 @@ namespace VeinNet
     VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
     Q_ASSERT(tmpPPeer != 0);
 
-    int tmpPeerId = tmpPPeer->getPeerId();
+    QUuid tmpPeerId = tmpPPeer->getPeerId();
 
     NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED, tmpPeerId);
     emit sigSendEvent(sEvent);
@@ -128,7 +128,8 @@ namespace VeinNet
     //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
     if(m_waitingAuth.contains(tmpPPeer))
     {
-      int newId = m_peerList.append(tmpPPeer);
+      QUuid newId = QUuid::createUuid();
+      m_peerList.insert(newId, tmpPPeer);
       vCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
       tmpPPeer->setPeerId(newId);
 
@@ -185,7 +186,7 @@ namespace VeinNet
         else //send to all explicit receivers
         {
           const auto tmpEventReceiversCopy = pEvent->receivers();
-          for(const int receiverId : tmpEventReceiversCopy)
+          for(const QUuid receiverId : tmpEventReceiversCopy)
           {
             VeinTcp::TcpPeer *tmpPeer = m_peerList.value(receiverId,0);
             if(tmpPeer)

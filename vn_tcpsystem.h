@@ -7,6 +7,7 @@
 #include <vh_handlemanager.h>
 
 #include <QAbstractSocket>
+#include <QUuid>
 
 
 namespace VeinTcp
@@ -41,11 +42,11 @@ namespace VeinNet
 
   signals:
     //client part
-    void sigConnnectionEstablished(int t_connectionId);
+    void sigConnnectionEstablished(QUuid t_connectionId);
 
     //server part
-    void sigClientConnected(int t_connectionId);
-    void sigClientDisconnected(int t_connectionId);
+    void sigClientConnected(QUuid t_connectionId);
+    void sigClientDisconnected(QUuid t_connectionId);
 
   public slots:
     /**
@@ -108,7 +109,7 @@ namespace VeinNet
     /**
      * @brief List of active clients
      */
-    VeinHelper::HandleManager<int, VeinTcp::TcpPeer *> m_peerList;
+    QHash<QUuid, VeinTcp::TcpPeer *> m_peerList;
 
     /**
      * @brief The server instance

@@ -2,12 +2,13 @@
 
 namespace VeinNet
 {
-  NetworkStatusEvent::NetworkStatusEvent(NetworkStatus t_status, int t_peerId) :
+  NetworkStatusEvent::NetworkStatusEvent(NetworkStatus t_status, QUuid t_peerId) :
     QEvent(static_cast<QEvent::Type>(getEventType())),
     m_status(t_status),
     m_socketError(),
     m_peerId(t_peerId)
   {
+    Q_ASSERT(t_peerId.isNull() == false);
     this->setAccepted(false);
   }
 
@@ -30,7 +31,7 @@ namespace VeinNet
   {
     return m_socketError;
   }
-  int NetworkStatusEvent::getPeerId() const
+  QUuid NetworkStatusEvent::getPeerId() const
   {
     return m_peerId;
   }
