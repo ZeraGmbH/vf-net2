@@ -54,7 +54,7 @@ namespace VeinNet
      * @param t_port
      * @note the QHostAddress::Any may have issues with ipv4 vs ipv6, but aparently they only affect udp connections so far
      */
-    void startServer(quint16 t_port);
+    bool startServer(quint16 t_port);
     void connectToServer(const QString &t_host, quint16 t_port);
 
     /**

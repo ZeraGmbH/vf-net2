@@ -26,11 +26,11 @@ namespace VeinNet
     vCDebug(VEIN_NET_TCP)  << "Destroyed TCP system";
   }
 
-  void TcpSystem::startServer(quint16 t_port)
+  bool TcpSystem::startServer(quint16 t_port)
   {
     Q_ASSERT(m_server->isListening() == false);
 
-    m_server->startServer(t_port);
+    return m_server->startServer(t_port);
   }
 
   void TcpSystem::connectToServer(const QString &t_host, quint16 t_port)
