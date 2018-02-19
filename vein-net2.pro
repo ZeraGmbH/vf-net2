@@ -16,6 +16,7 @@ contains(DEFINES, BUILD_DEV_SST) {
 
 #generate flatbuffers headers
 !defined(FBUF_COMPILER, var) {
+  message(using system flatbuffer compiler)
   FBUF_COMPILER = flatc
 }
 
@@ -23,6 +24,8 @@ FBUF_SRCDIR=$$_PRO_FILE_PWD_
 FBUF_IDL= $$FBUF_SRCDIR/ecs_schema.fbs
 flatbuffers.target = ecs_schema_generated.h
 flatbuffers.commands = $$FBUF_COMPILER --cpp -o $$FBUF_SRCDIR/ $$FBUF_IDL
+flatbuffers.output = ecs_schema_generated.h
+flatbuffers.CONFIG = target_predeps
 QMAKE_EXTRA_TARGETS += flatbuffers
 PRE_TARGETDEPS += ecs_schema_generated.h
 QMAKE_CLEAN += ecs_schema_generated.h
