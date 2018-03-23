@@ -41,7 +41,7 @@ namespace VeinNet
     vCDebug(VEIN_NET_TCP) << "Attempting connection to:"<< t_host << "on port:" << t_port;
 
     VeinTcp::TcpPeer *tmpPeer = new VeinTcp::TcpPeer(this);
-    connect(tmpPeer, SIGNAL(sigSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
+    connect(tmpPeer, &VeinTcp::TcpPeer::sigSocketError, this, &TcpSystem::onSocketError);
     connect(tmpPeer, &VeinTcp::TcpPeer::sigConnectionEstablished, this, &TcpSystem::onConnectionEstablished);
     connect(tmpPeer, &VeinTcp::TcpPeer::sigConnectionClosed, this, &TcpSystem::onConnectionClosed);
     tmpPeer->startConnection(t_host, t_port);
@@ -65,18 +65,15 @@ namespace VeinNet
 #endif // VN2_LEGACY_UNREACHABLE
   }
 
-  void TcpSystem::onConnectionEstablished()
+  void TcpSystem::onConnectionEstablished(VeinTcp::TcpPeer *t_peer)
   {
-    /// @todo requiring QObject::sender() is bad design
-    Q_ASSERT(QObject::sender()!=0);
-    VeinTcp::TcpPeer *tmpPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
-    Q_ASSERT(tmpPeer != 0);
+    Q_ASSERT(t_peer!=nullptr);
 
-    m_waitingAuth.append(tmpPeer);
+    m_waitingAuth.append(t_peer);
 
-    connect(tmpPeer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
+    connect(t_peer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
 
-    tmpPeer->sendMessage(QByteArray("hello"));
+    t_peer->sendMessage(QByteArray("hello"));
 #ifdef VN2_LEGACY_UNREACHABLE
     /** @todo implement authentication */
     protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
@@ -85,60 +82,52 @@ namespace VeinNet
 #endif // VN2_LEGACY_UNREACHABLE
   }
 
-  void TcpSystem::onConnectionClosed()
+  void TcpSystem::onConnectionClosed(VeinTcp::TcpPeer *t_peer)
   {
-    /// @todo requiring QObject::sender() is bad design
-    Q_ASSERT(QObject::sender()!=0);
-    VeinTcp::TcpPeer *tmpPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
-    Q_ASSERT(tmpPeer != 0);
+    Q_ASSERT(t_peer!=nullptr);
 
-    QUuid tmpPeerId = tmpPeer->getPeerId();
+    QUuid tmpPeerId = t_peer->getPeerId();
 
     vCDebug(VEIN_NET_TCP) << "Disconnected from server with ID:" << tmpPeerId;
-    m_waitingAuth.removeAll(tmpPeer);
+    m_waitingAuth.removeAll(t_peer);
     m_peerList.remove(tmpPeerId);
   }
 
-  void TcpSystem::onClientDisconnected()
+  void TcpSystem::onClientDisconnected(VeinTcp::TcpPeer *t_peer)
   {
-    /// @todo requiring QObject::sender() is bad design
-    Q_ASSERT(QObject::sender()!=0);
-    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
-    Q_ASSERT(tmpPPeer != 0);
+    Q_ASSERT(t_peer!=nullptr);
 
-    QUuid tmpPeerId = tmpPPeer->getPeerId();
+    QUuid tmpPeerId = t_peer->getPeerId();
 
     NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED, tmpPeerId);
     emit sigSendEvent(sEvent);
 
     vCDebug(VEIN_NET_TCP) << "Client disconnected with ID:" << tmpPeerId << "sent NetworkStatusEvent:" << sEvent;
-    m_waitingAuth.removeAll(tmpPPeer);
+    m_waitingAuth.removeAll(t_peer);
     m_peerList.remove(tmpPeerId);
     emit sigClientDisconnected(tmpPeerId);
-    delete tmpPPeer;
+    delete t_peer;
   }
 
-  void TcpSystem::onMessageReceived(QByteArray t_buffer)
+  void TcpSystem::onMessageReceived(VeinTcp::TcpPeer *t_sender, QByteArray t_buffer)
   {
     Q_ASSERT(t_buffer.isNull() == false);
-
-    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
-    Q_ASSERT(tmpPPeer != 0);
+    Q_ASSERT(t_sender!=nullptr);
 
     //vCDebug(VEIN_NET_TCP_VERBOSE)  << "Message received:" << proto->DebugString().c_str();
-    if(m_waitingAuth.contains(tmpPPeer))
+    if(m_waitingAuth.contains(t_sender))
     {
       QUuid newId = QUuid::createUuid();
-      m_peerList.insert(newId, tmpPPeer);
+      m_peerList.insert(newId, t_sender);
       vCDebug(VEIN_NET_TCP) << "New connection with id:" << newId;
-      tmpPPeer->setPeerId(newId);
+      t_sender->setPeerId(newId);
 
-      m_waitingAuth.removeAll(tmpPPeer);
+      m_waitingAuth.removeAll(t_sender);
       emit sigConnnectionEstablished(newId);
     }
     ProtocolEvent *tmpEvent = new ProtocolEvent(ProtocolEvent::EventOrigin::EO_REMOTE);
     tmpEvent->setBuffer(t_buffer);
-    tmpEvent->setPeerId(tmpPPeer->getPeerId());
+    tmpEvent->setPeerId(t_sender->getPeerId());
 #ifdef VN2_LEGACY_UNREACHABLE
     if(proto->command_size()>0)
     {
@@ -148,14 +137,13 @@ namespace VeinNet
     emit sigSendEvent(tmpEvent);
   }
 
-  void TcpSystem::onSocketError(QAbstractSocket::SocketError t_socketError)
+  void TcpSystem::onSocketError(VeinTcp::TcpPeer *t_peer, QAbstractSocket::SocketError t_socketError)
   {
-    VeinTcp::TcpPeer *tmpPPeer = qobject_cast<VeinTcp::TcpPeer *>(QObject::sender());
-    Q_ASSERT(tmpPPeer != 0);
+    Q_ASSERT(t_peer != nullptr);
 
-    NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, tmpPPeer->getPeerId());
+    NetworkStatusEvent *sEvent = new NetworkStatusEvent(NetworkStatusEvent::NetworkStatus::NSE_SOCKET_ERROR, t_peer->getPeerId());
     sEvent->setError(t_socketError);
-    qCCritical(VEIN_NET_TCP) << "Connection error on network with id:" << tmpPPeer->getPeerId() << "error:" << tmpPPeer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
+    qCCritical(VEIN_NET_TCP) << "Connection error on network with id:" << t_peer->getPeerId() << "error:" << t_peer->getErrorString() << "sent NetworkStatusEvent:" << sEvent;
     emit sigSendEvent(sEvent);
   }
 

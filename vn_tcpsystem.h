@@ -66,35 +66,30 @@ namespace VeinNet
 
     /**
      * @brief adds the server to the waiting auth list
-     * @todo do not rely on QObject::sender()
      */
-    void onConnectionEstablished();
+    void onConnectionEstablished(VeinTcp::TcpPeer *t_peer);
 
     /**
      * @brief cleans up the reference to the server peer
-     * @todo do not rely on QObject::sender()
      */
-    void onConnectionClosed();
+    void onConnectionClosed(VeinTcp::TcpPeer *t_peer);
 
     /**
      * @brief Cleans up local references to the client and calls sigClientDisconnected();
-     * @todo do not rely on QObject::sender()
      */
-    void onClientDisconnected();
+    void onClientDisconnected(VeinTcp::TcpPeer *t_peer);
 
     /**
      * @brief onMessageReceived
      * @todo add support for multiple commands in one protobuf message
-     * @todo do not rely on QObject::sender()
      */
-    void onMessageReceived(QByteArray t_buffer);
+    void onMessageReceived(VeinTcp::TcpPeer *t_sender, QByteArray t_buffer);
 
     /**
      * @brief sends a NetworkStatusEvent about the socketerror
      * @param t_socketError
-     * @todo do not rely on QObject::sender()
      */
-    void onSocketError(QAbstractSocket::SocketError t_socketError);
+    void onSocketError(VeinTcp::TcpPeer *t_peer, QAbstractSocket::SocketError t_socketError);
 
     // EventSystem interface
   public:
