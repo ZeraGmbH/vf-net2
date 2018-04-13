@@ -42,7 +42,7 @@ namespace VeinNet
 
     void processProtoEvent(ProtocolEvent *t_pEvent)
     {
-      Q_ASSERT(t_pEvent != 0);
+      Q_ASSERT(t_pEvent != nullptr);
 
       //do not process messages from this instance
       if(t_pEvent->isOfLocalOrigin() == false)
@@ -57,8 +57,8 @@ namespace VeinNet
           for(flatbuffers::uoffset_t i=0; i < ecsEventVector->size(); ++i)
           {
             const VeinFrameworkIDL::ECSEvent *entityEvent = ecsEventVector->Get(i);
-            VeinEvent::EventData *evData = 0;
-            CommandEvent *tmpEvent = 0;
+            VeinEvent::EventData *evData = nullptr;
+            CommandEvent *tmpEvent = nullptr;
 
             const char *eventDataArray = reinterpret_cast<const char *>(entityEvent->eventData()->data());
             const int eventDataArraySize = entityEvent->eventData()->size();
@@ -130,7 +130,7 @@ namespace VeinNet
 
     bool handleSubscription(VeinComponent::EntityData *t_eData, QUuid t_peerId)
     {
-      Q_ASSERT(t_eData != 0);
+      Q_ASSERT(t_eData != nullptr);
 
       bool retVal = false;
       switch(t_eData->eventCommand())
@@ -165,7 +165,7 @@ namespace VeinNet
 
     void handleNetworkStatusEvent(NetworkStatusEvent *t_sEvent)
     {
-      Q_ASSERT(t_sEvent != 0);
+      Q_ASSERT(t_sEvent != nullptr);
 
       vCDebug(VEIN_NET_VERBOSE) << "processing NetworkStatusEvent:" << t_sEvent;
       if(t_sEvent->getStatus() == NetworkStatusEvent::NetworkStatus::NSE_DISCONNECTED)
@@ -197,11 +197,11 @@ namespace VeinNet
 
     QByteArray prepareEnvelope(VeinEvent::CommandEvent *t_cEvent)
     {
-      Q_ASSERT(t_cEvent != 0);
+      Q_ASSERT(t_cEvent != nullptr);
 
       QByteArray retVal;
       const VeinEvent::EventData *evData = t_cEvent->eventData();
-      Q_ASSERT(evData != 0);
+      Q_ASSERT(evData != nullptr);
       const QByteArray serializedEventData = evData->serialize();
       const auto dataString = m_flatBufferBuilder.CreateString(serializedEventData.constData(), serializedEventData.size());
 
@@ -278,17 +278,17 @@ namespace VeinNet
 
   bool NetworkSystem::processEvent(QEvent *t_event)
   {
-    Q_ASSERT(t_event != 0);
+    Q_ASSERT(t_event != nullptr);
     bool retVal = false;
-    VeinEvent::EventData *evData = 0;
+    VeinEvent::EventData *evData = nullptr;
 
     if(t_event->type() == ProtocolEvent::getEventType())
     {
-      ProtocolEvent *pEvent=0;
+      ProtocolEvent *pEvent=nullptr;
       pEvent = static_cast<ProtocolEvent *>(t_event);
-      Q_ASSERT(pEvent != 0);
+      Q_ASSERT(pEvent != nullptr);
 
-      //      if(pEvent->eventOrigin() == ProtocolEvent::CO_FOREIGN ) //< this is checked differently in processProtoEvent
+      //      if(pEvent->eventOrigin() == ProtocolEvent::CO_FOREIGN) //< this is checked differently in processProtoEvent
       //      {
       retVal = true;
       d_ptr->processProtoEvent(pEvent);
@@ -307,13 +307,13 @@ namespace VeinNet
         }
         case VeinNet::NetworkSystem::VNOM_PASS_THROUGH:
         {
-          VeinEvent::CommandEvent *cEvent = 0;
+          VeinEvent::CommandEvent *cEvent = nullptr;
 
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-          Q_ASSERT(cEvent != 0);
+          Q_ASSERT(cEvent != nullptr);
 
           evData = cEvent->eventData();
-          Q_ASSERT(evData != 0);
+          Q_ASSERT(evData != nullptr);
 
           if(evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
@@ -339,12 +339,12 @@ namespace VeinNet
           //   drop the event and add/remove the sender to/from the subscriber list
           // or else
           //   send the event to all active subscribers
-          VeinEvent::CommandEvent *cEvent = 0;
+          VeinEvent::CommandEvent *cEvent = nullptr;
           cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-          Q_ASSERT(cEvent != 0);
+          Q_ASSERT(cEvent != nullptr);
 
           evData = cEvent->eventData();
-          Q_ASSERT(evData != 0);
+          Q_ASSERT(evData != nullptr);
 
           if(evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL
              && evData->eventTarget() == VeinEvent::EventData::EventTarget::ET_ALL)
@@ -379,9 +379,9 @@ namespace VeinNet
     }
     else if(t_event->type() == NetworkStatusEvent::getEventType())
     {
-      NetworkStatusEvent *sEvent = 0;
+      NetworkStatusEvent *sEvent = nullptr;
       sEvent=static_cast<NetworkStatusEvent *>(t_event);
-      Q_ASSERT(sEvent != 0);
+      Q_ASSERT(sEvent != nullptr);
 
       retVal = true;
       d_ptr->handleNetworkStatusEvent(sEvent);

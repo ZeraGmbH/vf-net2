@@ -25,7 +25,7 @@ namespace VeinNet
     Q_OBJECT
 
   public:
-    explicit NetworkSystem(QObject * t_parent=0);
+    explicit NetworkSystem(QObject *t_parent=nullptr);
     virtual ~NetworkSystem();
 
     /**
@@ -47,7 +47,7 @@ namespace VeinNet
 
 
   private:
-    NetworkSystemPrivate *d_ptr = 0;
+    NetworkSystemPrivate *d_ptr = nullptr;
   };
 }
 

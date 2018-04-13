@@ -37,7 +37,7 @@ namespace VeinNet
     Q_OBJECT
 
   public:
-    explicit TcpSystem(QObject *t_parent = 0);
+    explicit TcpSystem(QObject *t_parent = nullptr);
     virtual ~TcpSystem();
 
   signals:
@@ -109,7 +109,7 @@ namespace VeinNet
     /**
      * @brief The server instance
      */
-    VeinTcp::TcpServer *m_server = 0;
+    VeinTcp::TcpServer *m_server = nullptr;
   };
 }
 #endif // VN_TCPSYSTEM_H

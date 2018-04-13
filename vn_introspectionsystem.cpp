@@ -41,18 +41,18 @@ namespace VeinNet
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
-    Q_ASSERT(t_event != 0);
+    Q_ASSERT(t_event != nullptr);
     bool retVal = false;
 
     if(t_event->type()==CommandEvent::eventType())
     {
-      CommandEvent *cEvent = 0;
-      EventData *evData = 0;
+      CommandEvent *cEvent = nullptr;
+      EventData *evData = nullptr;
       cEvent = static_cast<CommandEvent *>(t_event);
-      Q_ASSERT(cEvent != 0);
+      Q_ASSERT(cEvent != nullptr);
 
       evData = cEvent->eventData();
-      Q_ASSERT(evData != 0);
+      Q_ASSERT(evData != nullptr);
 
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
@@ -60,9 +60,9 @@ namespace VeinNet
         {
           case EntityData::dataType():
           {
-            EntityData *eData=0;
+            EntityData *eData=nullptr;
             eData = static_cast<EntityData *>(evData);
-            Q_ASSERT(eData != 0);
+            Q_ASSERT(eData != nullptr);
 
             switch(eData->eventCommand())
             {
@@ -79,7 +79,7 @@ namespace VeinNet
               case EntityData::Command::ECMD_SUBSCRIBE:
               {
                 vCDebug(VEIN_NET_INTRO_VERBOSE) << "Processing command event:" << cEvent << "with command ECMD_SUBSCRIBE, entityId:" << eData->entityId();
-                IntrospectionData *newData=0;
+                IntrospectionData *newData=nullptr;
                 QJsonObject tmpObject;
 
                 tmpObject = getJsonIntrospection(eData->entityId());

@@ -49,14 +49,14 @@ namespace VeinNet
 
   void TcpSystem::onClientConnected(VeinTcp::TcpPeer *t_networkPeer)
   {
-    Q_ASSERT(t_networkPeer != 0);
+    Q_ASSERT(t_networkPeer != nullptr);
 
     connect(t_networkPeer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
     m_waitingAuth.append(t_networkPeer);
 
     connect(t_networkPeer, &VeinTcp::TcpPeer::sigConnectionClosed, this, &TcpSystem::onClientDisconnected);
 
-    t_networkPeer->sendMessage(QByteArray("welcome"));
+    t_networkPeer->sendMessage(QByteArray("welcome")); //message content is irrelevant
 #ifdef VN2_LEGACY_UNREACHABLE
     /** @todo implement authentication */
     protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
@@ -73,7 +73,7 @@ namespace VeinNet
 
     connect(t_peer, &VeinTcp::TcpPeer::sigMessageReceived, this, &TcpSystem::onMessageReceived);
 
-    t_peer->sendMessage(QByteArray("hello"));
+    t_peer->sendMessage(QByteArray("hello")); //message content is irrelevant
 #ifdef VN2_LEGACY_UNREACHABLE
     /** @todo implement authentication */
     protobuf::VeinProtocol *protoAuth = new protobuf::VeinProtocol();
@@ -149,14 +149,14 @@ namespace VeinNet
 
   bool TcpSystem::processEvent(QEvent *t_event)
   {
-    Q_ASSERT(t_event != 0);
+    Q_ASSERT(t_event != nullptr);
 
     bool retVal = false;
     if(t_event->type()==ProtocolEvent::getEventType())
     {
-      ProtocolEvent *pEvent=0;
+      ProtocolEvent *pEvent=nullptr;
       pEvent = static_cast<ProtocolEvent *>(t_event);
-      Q_ASSERT(pEvent != 0);
+      Q_ASSERT(pEvent != nullptr);
       /// @todo rework event origin concept
       //do not process protocol events from foreign systems, that is the job of NetworkSystem
       if(pEvent->isOfLocalOrigin() == true)
