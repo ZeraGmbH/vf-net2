@@ -6,8 +6,8 @@
 #include <vtcp_peer.h>
 #include <vtcp_server.h>
 
-Q_LOGGING_CATEGORY(VEIN_NET_TCP, "\e[1;33m<Vein.Network.Tcp>\033[0m")
-Q_LOGGING_CATEGORY(VEIN_NET_TCP_VERBOSE, "\e[0;33m<Vein.Network.Tcp>\033[0m")
+Q_LOGGING_CATEGORY(VEIN_NET_TCP, VEIN_DEBUGNAME_NET_TCP)
+Q_LOGGING_CATEGORY(VEIN_NET_TCP_VERBOSE, VEIN_DEBUGNAME_NET_TCP_VERBOSE)
 
 using namespace VeinEvent;
 

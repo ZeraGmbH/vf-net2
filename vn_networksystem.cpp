@@ -14,8 +14,8 @@
 
 #include <QUuid>
 
-Q_LOGGING_CATEGORY(VEIN_NET, "\e[1;32m<Vein.Network>\033[0m")
-Q_LOGGING_CATEGORY(VEIN_NET_VERBOSE, "\e[0;32m<Vein.Network>\033[0m")
+Q_LOGGING_CATEGORY(VEIN_NET, VEIN_DEBUGNAME_NET)
+Q_LOGGING_CATEGORY(VEIN_NET_VERBOSE, VEIN_DEBUGNAME_NET_VERBOSE)
 
 using namespace VeinEvent;
 using namespace VeinComponent;

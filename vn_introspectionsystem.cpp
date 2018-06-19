@@ -11,8 +11,8 @@
 #include <vcmp_remoteproceduredata.h>
 #include <vcmp_errordata.h>
 
-Q_LOGGING_CATEGORY(VEIN_NET_INTRO, "\e[1;35m<Vein.Network.Introspection>\033[0m")
-Q_LOGGING_CATEGORY(VEIN_NET_INTRO_VERBOSE, "\e[0;35m<Vein.Network.Introspection>\033[0m")
+Q_LOGGING_CATEGORY(VEIN_NET_INTRO, VEIN_DEBUGNAME_NET_INTRO)
+Q_LOGGING_CATEGORY(VEIN_NET_INTRO_VERBOSE, VEIN_DEBUGNAME_NET_INTRO_VERBOSE)
 
 using namespace VeinEvent;
 using namespace VeinComponent;
