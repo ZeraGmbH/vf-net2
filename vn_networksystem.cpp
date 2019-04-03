@@ -282,7 +282,7 @@ namespace VeinNet
     bool retVal = false;
     VeinEvent::EventData *evData = nullptr;
 
-    if(t_event->type() == ProtocolEvent::getEventType())
+    if(t_event->type() == ProtocolEvent::getEventType()) //incoming messages
     {
       ProtocolEvent *pEvent=nullptr;
       pEvent = static_cast<ProtocolEvent *>(t_event);
@@ -294,7 +294,7 @@ namespace VeinNet
       d_ptr->processProtoEvent(pEvent);
       //      }
     }
-    else if(t_event->type() == CommandEvent::eventType())
+    else if(t_event->type() == CommandEvent::eventType()) //outgoing messages
     {
       switch (d_ptr->m_operationMode)
       {

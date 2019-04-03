@@ -159,7 +159,7 @@ namespace VeinNet
       Q_ASSERT(pEvent != nullptr);
       /// @todo rework event origin concept
       //do not process protocol events from foreign systems, that is the job of NetworkSystem
-      if(pEvent->isOfLocalOrigin() == true)
+      if(pEvent->isOfLocalOrigin() == true) //event is outgoing
       {
         //send to all
         if(pEvent->receivers().isEmpty())
@@ -174,7 +174,7 @@ namespace VeinNet
         else //send to all explicit receivers
         {
           const auto tmpEventReceiversCopy = pEvent->receivers();
-          for(const QUuid receiverId : tmpEventReceiversCopy)
+          for(const QUuid &receiverId : tmpEventReceiversCopy)
           {
             VeinTcp::TcpPeer *tmpPeer = m_peerList.value(receiverId,0);
             if(tmpPeer)
