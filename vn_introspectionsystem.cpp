@@ -68,12 +68,15 @@ namespace VeinNet
             {
               case EntityData::Command::ECMD_ADD:
               {
-                if(m_introspectionData.contains(eData->entityId()))
+                if(eData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL)
                 {
-                  //remove the old entry to prevent leaking
-                  delete m_introspectionData.value(eData->entityId());
+                  if(m_introspectionData.contains(eData->entityId()))
+                  {
+                    //remove the old entry to prevent leaking
+                    delete m_introspectionData.value(eData->entityId());
+                  }
+                  m_introspectionData.insert(eData->entityId(), new EntityIntrospection());
                 }
-                m_introspectionData.insert(eData->entityId(), new EntityIntrospection());
                 break;
               }
               case EntityData::Command::ECMD_SUBSCRIBE:
@@ -132,22 +135,25 @@ namespace VeinNet
             ComponentData *cData = nullptr;
             cData = static_cast<ComponentData *>(evData);
             Q_ASSERT(cData != nullptr);
-            switch(cData->eventCommand())
+            if(cData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL)
             {
-              case ComponentData::Command::CCMD_ADD:
+              switch(cData->eventCommand())
               {
-                Q_ASSERT(m_introspectionData.contains(cData->entityId()));
-                m_introspectionData.value(cData->entityId())->m_components.insert(cData->componentName());
-                break;
+                case ComponentData::Command::CCMD_ADD:
+                {
+                  Q_ASSERT(m_introspectionData.contains(cData->entityId()));
+                  m_introspectionData.value(cData->entityId())->m_components.insert(cData->componentName());
+                  break;
+                }
+                case ComponentData::Command::CCMD_REMOVE:
+                {
+                  Q_ASSERT(m_introspectionData.contains(cData->entityId()));
+                  m_introspectionData.value(cData->entityId())->m_components.remove(cData->componentName());
+                  break;
+                }
+                default:
+                  break;
               }
-              case ComponentData::Command::CCMD_REMOVE:
-              {
-                Q_ASSERT(m_introspectionData.contains(cData->entityId()));
-                m_introspectionData.value(cData->entityId())->m_components.remove(cData->componentName());
-                break;
-              }
-              default:
-                break;
             }
             break;
           }
@@ -156,10 +162,13 @@ namespace VeinNet
             RemoteProcedureData *rpcData = nullptr;
             rpcData = static_cast<RemoteProcedureData *>(evData);
             Q_ASSERT(rpcData != nullptr);
-            if(rpcData->command() == RemoteProcedureData::Command::RPCMD_REGISTER)
+            if(rpcData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL)
             {
-              Q_ASSERT(m_introspectionData.contains(rpcData->entityId()));
-              m_introspectionData.value(rpcData->entityId())->m_procedures.insert(rpcData->procedureName());
+              if(rpcData->command() == RemoteProcedureData::Command::RPCMD_REGISTER)
+              {
+                Q_ASSERT(m_introspectionData.contains(rpcData->entityId()));
+                m_introspectionData.value(rpcData->entityId())->m_procedures.insert(rpcData->procedureName());
+              }
             }
           }
           default:
