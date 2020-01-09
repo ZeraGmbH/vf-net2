@@ -1,7 +1,7 @@
 #ifndef VN_TCPSYSTEM_H
 #define VN_TCPSYSTEM_H
 
-#include "veinnet_global.h"
+#include "globalIncludes.h"
 #include <ve_eventsystem.h>
 
 #include <vh_handlemanager.h>
@@ -32,7 +32,7 @@ namespace VeinNet
    * Handles ProtocolEvents, it interfaces libxiqnet to send messages over the network
    * @todo needs something like interexchangable strategy objects that allow error recovery depending on the application needs
    */
-  class VEINNETSHARED_EXPORT TcpSystem : public VeinEvent::EventSystem
+  class VFNET2_EXPORT TcpSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
 

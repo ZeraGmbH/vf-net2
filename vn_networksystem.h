@@ -1,7 +1,7 @@
 #ifndef CONNECTIONMANAGER_H
 #define CONNECTIONMANAGER_H
 
-#include "veinnet_global.h"
+#include "globalIncludes.h"
 
 #include <ve_eventsystem.h>
 
@@ -20,7 +20,7 @@ namespace VeinNet
    *
    * Also translates remote ProtocolEvents into regular events and posts them to the EventHandler
    */
-  class VEINNETSHARED_EXPORT NetworkSystem : public VeinEvent::EventSystem
+  class VFNET2_EXPORT NetworkSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
 

@@ -2,7 +2,7 @@
 #define VEINNET_INTROSPECTIONSYSTEM_H
 
 #include <ve_eventsystem.h>
-#include "veinnet_global.h"
+#include "globalIncludes.h"
 
 #include <QHash>
 #include <QJsonObject>
@@ -19,7 +19,7 @@ namespace VeinNet
   /**
    * @brief Collates VeinStorage data structure informations into VeinComponent::IntrospectionData for remote introspection
    */
-  class VEINNETSHARED_EXPORT IntrospectionSystem : public VeinEvent::EventSystem
+  class VFNET2_EXPORT IntrospectionSystem : public VeinEvent::EventSystem
   {
     Q_OBJECT
 

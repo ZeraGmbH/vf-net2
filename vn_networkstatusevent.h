@@ -3,7 +3,7 @@
 
 #include <QEvent>
 #include <QUuid>
-#include "veinnet_global.h"
+#include "globalIncludes.h"
 
 #include <QAbstractSocket>
 
@@ -13,7 +13,7 @@ namespace VeinNet
    * @brief Notifies about network status changes
    * @note at the time the event is received the corresponding peer could already be deleted
    */
-  class VEINNETSHARED_EXPORT NetworkStatusEvent : public QEvent
+  class VFNET2_EXPORT NetworkStatusEvent : public QEvent
   {
   public:
     enum class NetworkStatus : int

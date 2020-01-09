@@ -1,7 +1,7 @@
 #ifndef VN_PROTOCOLEVENT_H
 #define VN_PROTOCOLEVENT_H
 
-#include "veinnet_global.h"
+#include "globalIncludes.h"
 #include <QEvent>
 #include <QUuid>
 
@@ -10,7 +10,7 @@ namespace VeinNet
   /**
    * @brief Event containing flatbuffer data that is exchanged between VeinNet::NetworkSystem and the wire implementations (e.g. VeinNet::TcpSystem)
    */
-  class VEINNETSHARED_EXPORT ProtocolEvent : public QEvent
+  class VFNET2_EXPORT ProtocolEvent : public QEvent
   {
   public:
     enum class EventOrigin : bool {
