@@ -51,10 +51,11 @@ namespace VeinNet
   public slots:
     /**
      * @brief listens on QHostAddress::Any with port t_port
-     * @param t_port
+     * @param t_port: Port number
+     * @param t_systemdSocket: true: use systemd socket
      * @note the QHostAddress::Any may have issues with ipv4 vs ipv6, but aparently they only affect udp connections so far
      */
-    bool startServer(quint16 t_port);
+    bool startServer(quint16 t_port, bool t_systemdSocket=true);
     void connectToServer(const QString &t_host, quint16 t_port);
 
     /**
