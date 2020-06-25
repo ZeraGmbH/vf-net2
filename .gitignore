@@ -27,6 +27,7 @@ Thumbs.db
 *.pb.*
 unittest
 *_generated.h
+CMakeLists.txt.user*
 
 # qtcreator generated files
 *.pro.user*
