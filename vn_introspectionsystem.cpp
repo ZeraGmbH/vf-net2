@@ -186,8 +186,8 @@ namespace VeinNet
 
     if(m_introspectionData.contains(t_entityId))
     {
-      retVal.insert(QString("components"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_components.toList()));
-      retVal.insert(QString("procedures"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_procedures.toList()));
+      retVal.insert(QString("components"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_components.values()));
+      retVal.insert(QString("procedures"), QJsonArray::fromStringList(m_introspectionData.value(t_entityId)->m_procedures.values()));
     }
     return retVal;
   }
