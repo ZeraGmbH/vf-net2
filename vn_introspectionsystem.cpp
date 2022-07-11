@@ -37,7 +37,7 @@ namespace VeinNet
     m_introspectionData.clear();
   }
 
-  constexpr QLatin1String IntrospectionSystem::s_nameComponent;
+  const QString IntrospectionSystem::s_nameComponent = QLatin1String("EntityName");
 
   bool IntrospectionSystem::processEvent(QEvent *t_event)
   {
