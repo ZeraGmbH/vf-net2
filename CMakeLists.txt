@@ -104,7 +104,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     VfNet2ConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY SameMinorVersion
+    COMPATIBILITY SameMajorVersion
     )
 
 # configure *Config.cmake
