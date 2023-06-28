@@ -13,17 +13,14 @@ set(PROJECT_VERSION "${VfNet2_VERSION_MAJOR}.${VfNet2_VERSION_MINOR}.${VfNet2_VE
 
 include(FeatureSummary)
 include(GNUInstallDirs)
+include(GenerateExportHeader)
 
-#Find dependecies
 find_package(Qt5 COMPONENTS Core Network CONFIG REQUIRED)
+find_package(VeinFramework REQUIRED)
 find_package(VfTcp REQUIRED)
-find_package(VfHelpers REQUIRED)
-find_package(VfComponent REQUIRED)
-find_package(VfEvent REQUIRED)
 find_package(Flatbuffers REQUIRED)
 
-#generate ecs_schema_generated from ecs_schema.fbs with flatbuffer 
-#ToDo solve make ecs_schema.fbs dependency (but it works already)
+# generate ecs_schema_generated from ecs_schema.fbs with flatbuffer
 execute_process(COMMAND flatc --cpp ${PROJECT_SOURCE_DIR}/ecs_schema.fbs
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
@@ -43,21 +40,19 @@ add_library(VfNet2 SHARED
     )
 
 target_link_libraries(VfNet2
-    PRIVATE
+    PUBLIC
     Qt5::Core
     Qt5::Network
     flatbuffers
-    VeinMeta::VfHelpers
-    VeinMeta::VfComponent
+    Zera::VfHelpers
+    Zera::VfComponent
+    Zera::VfEvent
     VeinMeta::VfTcp
-    VeinMeta::VfEvent
-
     )
 
 set_target_properties(VfNet2 PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(VfNet2 PROPERTIES SOVERSION ${VfNet2_VERSION_MAJOR})
 
-include(GenerateExportHeader)
 generate_export_header(VfNet2)
 
 install(FILES
@@ -65,13 +60,11 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfNet2
     )
 
-# announce headers - target perspective
 target_include_directories(VfNet2
     PUBLIC
     $<INSTALL_INTERFACE:include/VfNet2>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     )
 
 install(TARGETS VfNet2
@@ -105,4 +98,3 @@ install(
     )
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
